@@ -1,114 +1,96 @@
 ---
-import { cfImage } from "@mightylocalsites/astro-data";
 /**
- * /services — site override page. Mirrors the <main> content of
- * stoppel-supply-company.myshopify.com/pages/services: a hero banner followed
- * by alternating image/text service rows. Static marketing copy, so no v1
- * lookups beyond the site chrome (owner/locations/announcements) that
- * SiteLayout needs. Images are live Shopify CDN URLs as plain <img>
- * (`mighty-migrate-images` rewrites them to R2 + cfImage() later). Same
- * hero/row pattern as /departments.
+ * /services — Stoppel-style hero + icon-led service grid.
+ * Copy from https://daubyshardware.com/pages/services
  */
-import { SiteLayout } from "@mightylocalsites/ui";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import FaviconLinks from "../components/FaviconLinks.astro";
 import { getSiteChrome } from "../lib/site-chrome";
+import { telHref } from "@mightylocalsites/astro-data";
+import { imageAlt, images, locationsHref, withShopifyLogo } from "../data/images";
+import { services, servicesIntro } from "../data/content";
+import { DEFAULT_OG_IMAGE, pageCanonical } from "../lib/seo";
+import "../styles/site.css";
 
-const chrome = await getSiteChrome(Astro.response);
+const chrome = withShopifyLogo(await getSiteChrome(Astro.response));
 const { owner } = chrome.site;
-
-const heroImage =
-  cfImage("stoppel-supply-ks/blade-chain-sharpening-1800x800px-shopify.png", { width: 1920 });
-
-const services = [
-  {
-    title: "Hydraulic Hose Repair",
-    image:
-      cfImage("stoppel-supply-ks/hydraulic-hoses-500x300px-shopify.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, we know that a broken or leaking hydraulic hose can bring your equipment to a halt. That is why our experienced team is ready to provide fast, dependable hydraulic hose repair services to keep your machines running smoothly. From heavy machinery to farm equipment, we handle every repair with precision and quality parts, ensuring long-lasting performance. Stop by our Russell location for expert service you can count on and get back to work with confidence.",
-  },
-  {
-    title: "Stihl Services",
-    image:
-      cfImage("stoppel-supply-ks/farm-500x500-shopify-collection-2.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, we understand how important your Stihl equipment is to keeping your work running smoothly. From chainsaws to trimmers and everything in between, our skilled technicians provide fast, dependable repairs using quality parts to restore your tools to peak performance. Whether it is routine maintenance or a major repair, we are committed to getting you back to work safely and efficiently. Stop by Stoppel Supply Company today and experience expert Stihl service you can count on.",
-  },
-  {
-    title: "Chainsaw Chain Sharpening",
-    image:
-      cfImage("stoppel-supply-ks/blade-chain-sharpening-500x300px-shopify.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, we know that a sharp chain is the heart of every successful project. Our professional chainsaw chain sharpening service brings your equipment back to peak performance, saving you time, effort, and frustration. Our skilled technicians restore chains with precision and care, ensuring clean, efficient cuts every time. Stop by Stoppel Supply Company and experience service that keeps your equipment—and your work—running smoothly.",
-  },
-  {
-    title: "Special Ordering",
-    image:
-      cfImage("stoppel-supply-ks/special-ordering-500x300px-shopify.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, we know that every project is unique, and finding the right materials should never slow you down. Our special ordering service gives you access to the tools, hardware, and supplies you need—even if they are not on our shelves. Simply tell us what you need, and our knowledgeable team will locate it, place the order, and have it ready for you as quickly as possible. With Stoppel Supply Company, you get personalized service, dependable results, and the confidence that your project will always have the right parts at the right time.",
-  },
-  {
-    title: "Oil Field & Industrial Parts",
-    image:
-      cfImage("stoppel-supply-ks/store-500x300px-shopify.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, we provide the tools and services that keep your operations running smoothly. From fast, accurate service to a wide selection of oil field and industrial parts, our experienced team is dedicated to supporting local businesses and contractors. Whether you are maintaining equipment in the field, repairing critical components, or keeping your operations supplied and on schedule, Stoppel Supply Company delivers quality products, dependable service, and the expertise you can trust. Stop by our Russell location today and see why generations of professionals rely on us for their industrial needs.",
-  },
-];
+const primary = chrome.site.locations[0] ?? null;
+const canonical = pageCanonical(Astro.url, Astro.site);
+const locationLabel = primary?.locality && primary?.administrative_area
+  ? `${primary.locality}, ${primary.administrative_area}`
+  : "Tell City, IN";
+const phone = primary?.phone ?? "(812) 547-2566";
 ---
 
 <SiteLayout
   {...chrome}
+  logo={images.logo}
   title={`Services | ${owner.name}`}
-  description="Services at Stoppel Supply Company in Russell, KS — hydraulic hose repair, Stihl service, chainsaw chain sharpening, special ordering, and oil field & industrial parts."
+  description={`Services at ${owner.name} in Tell City, IN — quotes and estimates, key cutting, lock rekeying, paint matching, and special ordering.`}
+  canonical={canonical}
+  ogImage={DEFAULT_OG_IMAGE}
+  locationsHref={locationsHref}
 >
+  <FaviconLinks slot="head" />
+
   <section class="svc-hero">
     <img
       class="svc-hero__img"
-      src={heroImage}
-      alt="Chainsaw chain sharpening and repair services at Stoppel Supply Company"
+      src={images.svcHero}
+      alt={imageAlt.svcHero}
       fetchpriority="high"
       decoding="async"
     />
     <div class="svc-hero__overlay">
       <h1 class="svc-hero__title">Services</h1>
-      <p class="svc-hero__loc">Russell, KS</p>
+      <p class="svc-hero__loc">{locationLabel}</p>
       <a class="ml-btn svc-hero__cta" href="/contact">Contact Us</a>
     </div>
   </section>
 
-  <div class="svc-rows">
-    {
-      services.map((s) => (
-        <section class="svc-row">
-          <div class="svc-row__media">
-            <img
-              class="svc-row__img"
-              src={s.image}
-              alt={s.title}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div class="svc-row__text">
-            <h2 class="svc-row__title">{s.title}</h2>
-            <p class="svc-row__body">{s.body}</p>
-          </div>
-        </section>
-      ))
-    }
+  <div class="page-flow">
+    <p class="page-intro">{servicesIntro}</p>
+
+    <section class="block">
+      <ul class="svc-grid svc-grid--page">
+        {
+          services.map((s) => (
+            <li class="svc-grid__item">
+              <span class="svc-grid__icon" aria-hidden="true">
+                <i class={s.icon}></i>
+              </span>
+              <div>
+                <h2>{s.title}</h2>
+                <p>{s.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="cta-band">
+      <div>
+        <h2>Questions?</h2>
+        <p>Call or stop by — we're glad to help.</p>
+      </div>
+      <div class="cta-band__actions">
+        <a class="btn btn--primary" href="/contact">Contact Us</a>
+        <a class="btn btn--outline" href={telHref(phone)}>
+          <i class="fa-solid fa-phone" aria-hidden="true"></i> {phone}
+        </a>
+      </div>
+    </section>
   </div>
 </SiteLayout>
 
 <style>
-  /* The full-bleed hero below spans 100vw, which includes the vertical
-     scrollbar's width and overflows the page. Clip horizontal overflow at the
-     root so a stray horizontal scrollbar can never appear. (clip, not hidden,
-     leaves any position:sticky intact.) */
   :global(html) {
     overflow-x: clip;
   }
 
   .svc-hero {
     position: relative;
-    /* Full-bleed: break out of the centered .ml-container so the banner spans
-       the full viewport. The negative top margin cancels the container's top
-       padding so the hero sits flush under the header. */
     width: 100vw;
     left: 50%;
     right: 50%;
@@ -116,14 +98,14 @@ const services = [
     overflow: hidden;
     background: var(--ml-color-surface-alt, #f3f4f6);
   }
+
   .svc-hero__img {
     display: block;
     width: 100%;
     height: clamp(240px, 40vw, 460px);
     object-fit: cover;
   }
-  /* Neutral black scrim (not the brand color) so the photography shows through
-     while keeping the overlaid text legible. */
+
   .svc-hero__overlay {
     position: absolute;
     inset: 0;
@@ -137,68 +119,37 @@ const services = [
     color: #fff;
     background: rgba(0, 0, 0, 0.4);
   }
+
   .svc-hero__title {
     margin: 0;
     font-size: clamp(2rem, 5vw, 3.25rem);
     font-weight: 700;
     line-height: 1.1;
+    color: #fff;
   }
+
   .svc-hero__loc {
     margin: 0;
     font-size: 1.125rem;
     font-weight: 500;
-  }
-  .svc-hero__cta {
-    margin-top: 8px;
-    color: var(--ml-color-primary-contrast, #fff);
+    color: #fff;
   }
 
-  .svc-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 56px;
+  .svc-hero__cta {
+    margin-top: 8px;
+    color: #fff !important;
+  }
+
+  .page-flow {
     max-width: 1080px;
     margin: 0 auto 48px;
   }
-  .svc-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 40px;
-  }
-  /* Alternate the image to the right on every other row, mirroring the source. */
-  .svc-row:nth-child(even) .svc-row__media {
-    order: 2;
-  }
-  .svc-row__img {
-    display: block;
-    width: 100%;
-    border-radius: var(--ml-radius, 12px);
-    background: var(--ml-color-surface-alt, #f3f4f6);
-  }
-  .svc-row__title {
-    margin: 0 0 12px 0;
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--ml-color-text, #111827);
-    /* Brand-tinted accent rule under each service heading. */
-    padding-bottom: 8px;
-    border-bottom: 3px solid var(--ml-color-primary, #fdb104);
-  }
-  .svc-row__body {
-    margin: 0;
-    font-size: 1rem;
-    line-height: 1.7;
-    color: #374151;
-  }
 
-  @media (max-width: 720px) {
-    .svc-row {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-    .svc-row:nth-child(even) .svc-row__media {
-      order: 0;
-    }
+  .page-intro {
+    margin: 0 0 32px;
+    text-align: center;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ml-color-muted, #6b7280);
   }
 </style>

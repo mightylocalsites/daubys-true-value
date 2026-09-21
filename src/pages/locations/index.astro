@@ -1,0 +1,65 @@
+---
+/**
+ * Locations index — single-store sites redirect to the location detail page.
+ */
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { LocationList } from "@mightylocalsites/ui";
+import FaviconLinks from "../../components/FaviconLinks.astro";
+import InteriorHero from "../../components/InteriorHero.astro";
+import { getSiteChrome } from "../../lib/site-chrome";
+import { imageAlt, images, locationsHref, withShopifyLogo } from "../../data/images";
+import { DEFAULT_OG_IMAGE, pageCanonical } from "../../lib/seo";
+import "../../styles/site.css";
+
+const chrome = withShopifyLogo(await getSiteChrome(Astro.response));
+const { owner, locations } = chrome.site;
+const primary = locations[0] ?? null;
+const canonical = pageCanonical(Astro.url, Astro.site);
+const locationLabel = primary?.locality && primary?.administrative_area
+  ? `${primary.locality}, ${primary.administrative_area}`
+  : "Tell City, IN";
+
+if (locations.length === 1) {
+  return Astro.redirect(`/locations/${locations[0]!.slug}`, 302);
+}
+---
+
+<SiteLayout
+  {...chrome}
+  logo={images.logo}
+  title={`Locations | ${owner.name}`}
+  description={`Store locations for ${owner.name} in Tell City, IN.`}
+  canonical={canonical}
+  ogImage={DEFAULT_OG_IMAGE}
+  locationsHref={locationsHref}
+>
+  <FaviconLinks slot="head" />
+
+  <InteriorHero
+    image={images.heroWelcome}
+    alt={imageAlt.heroWelcome}
+    title="Our Locations"
+    location={locationLabel}
+  />
+
+  <div class="page-flow page-flow--flush">
+    <header class="page-hero">
+      <p class="page-hero__eyebrow">Find us</p>
+      <h1>Our Locations</h1>
+      <p>Hours, directions, and contact info for {owner.name}.</p>
+    </header>
+
+    <LocationList
+      locations={locations}
+      hrefBase="/locations"
+      timezone={owner.timezone}
+      emptyMessage="Location details are being updated — please call us for hours and directions."
+    />
+  </div>
+</SiteLayout>
+
+<style>
+  :global(html) {
+    overflow-x: clip;
+  }
+</style>

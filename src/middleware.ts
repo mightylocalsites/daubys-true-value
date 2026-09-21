@@ -1,7 +1,9 @@
 import { defineMiddleware } from "astro:middleware";
 
-const FAVICON_TAGS = `<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="/favicon.svg" />`;
+const FAVICON_TAGS = `<meta name="theme-color" content="#a00c24" />
+<link rel="icon" href="/favicon.png" type="image/png" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/favicon.png" />`;
 
 /** Inject favicon links into every HTML response (framework + override pages). */
 export const onRequest = defineMiddleware(async (_context, next) => {
@@ -15,7 +17,7 @@ export const onRequest = defineMiddleware(async (_context, next) => {
     statusText: response.statusText,
     headers: response.headers,
   };
-  if (!html.includes("</head>") || html.includes("/favicon.svg")) {
+  if (!html.includes("</head>") || html.includes('rel="icon"')) {
     return new Response(html, responseInit);
   }
 

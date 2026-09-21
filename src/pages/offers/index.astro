@@ -1,0 +1,71 @@
+---
+/**
+ * Offers — branded override with site chrome and Stoppel-style hero.
+ */
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { OfferList } from "@mightylocalsites/ui";
+import FaviconLinks from "../../components/FaviconLinks.astro";
+import InteriorHero from "../../components/InteriorHero.astro";
+import { getSiteChrome, getSiteContentSafe, applyCache } from "../../lib/site-chrome";
+import { imageAlt, images, locationsHref, withShopifyLogo } from "../../data/images";
+import { DEFAULT_OG_IMAGE, pageCanonical } from "../../lib/seo";
+import "../../styles/site.css";
+
+const [chrome, content] = await Promise.all([
+  getSiteChrome(Astro.response),
+  getSiteContentSafe(Astro.response, ["offers"]),
+]);
+withShopifyLogo(chrome);
+applyCache(Astro.response, content.cacheControl);
+
+const { owner } = chrome.site;
+const primary = chrome.site.locations[0] ?? null;
+const offers = content.data.offers ?? [];
+const canonical = pageCanonical(Astro.url, Astro.site);
+const locationLabel = primary?.locality && primary?.administrative_area
+  ? `${primary.locality}, ${primary.administrative_area}`
+  : "Tell City, IN";
+---
+
+<SiteLayout
+  {...chrome}
+  logo={images.logo}
+  title={`Offers & Promotions | ${owner.name}`}
+  description={`Current offers and in-store savings from ${owner.name} in Tell City, IN.`}
+  canonical={canonical}
+  ogImage={DEFAULT_OG_IMAGE}
+  locationsHref={locationsHref}
+>
+  <FaviconLinks slot="head" />
+
+  <InteriorHero
+    image={images.heroWelcome}
+    alt={imageAlt.heroWelcome}
+    title="Special Offers"
+    location={locationLabel}
+  />
+
+  <div class="page-flow page-flow--flush">
+    <header class="page-hero">
+      <p class="page-hero__eyebrow">In-store savings</p>
+      <h1>Offers &amp; Promotions</h1>
+      <p>
+        Current deals at Dauby's True Value Hardware. Stop in to redeem — our
+        team is happy to help you find everything on your list.
+      </p>
+    </header>
+
+    <OfferList
+      offers={offers}
+      hrefBase="/offers"
+      showViewAll={false}
+      emptyMessage="No active offers right now — check back soon, or stop in and ask our team about current specials."
+    />
+  </div>
+</SiteLayout>
+
+<style>
+  :global(html) {
+    overflow-x: clip;
+  }
+</style>

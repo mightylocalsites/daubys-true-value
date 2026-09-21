@@ -73,13 +73,15 @@ export default defineConfig({
         { label: "Offers", href: "/offers" },
         { label: "Events", href: "/events" },
         { label: "About Us", href: "/about-us" },
-        { label: "Location", href: "/locations/stoppel-supply-company" },
+        { label: "Location", href: "/locations/daubys-true-value-hardware" },
         { label: "Contact", href: "/contact" },
       ],
       // You can opt out of inherited routes like /events here. This only
       // works on routes coming from the framework (astro-site) package.
       disabledRoutes: [],
       footerNav: [
+        { label: "Privacy Policy", href: "/privacy-policy" },
+        { label: "Terms of Service", href: "/terms-of-service" },
         { label: "Accessibility Statement", href: "/accessibility-statement" },
       ],
       // Opt into the framework CSP baseline (FA, Elfsight, Turnstile, GA, Maps).

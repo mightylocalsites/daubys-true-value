@@ -1,131 +1,103 @@
 ---
-import { cfImage } from "@mightylocalsites/astro-data";
 /**
- * /departments — site override page. Mirrors the <main> content of
- * stoppel-supply-company.myshopify.com/pages/departments: a hero banner
- * followed by alternating image/text department rows. Static marketing copy, so
- * no v1 lookups beyond the site chrome (owner/locations/announcements) that
- * SiteLayout needs. Images are live Shopify CDN URLs as plain <img>
- * (`mighty-migrate-images` rewrites them to R2 + cfImage() later).
+ * /departments — Stoppel-style hero + icon-led department grid.
+ * Copy from https://daubyshardware.com/pages/departments
  */
-import { SiteLayout } from "@mightylocalsites/ui";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import FaviconLinks from "../components/FaviconLinks.astro";
 import { getSiteChrome } from "../lib/site-chrome";
+import { telHref } from "@mightylocalsites/astro-data";
+import { imageAlt, images, locationsHref, withShopifyLogo } from "../data/images";
+import { departments, departmentsIntro } from "../data/content";
+import { DEFAULT_OG_IMAGE, pageCanonical } from "../lib/seo";
+import "../styles/site.css";
 
-const chrome = await getSiteChrome(Astro.response);
+const chrome = withShopifyLogo(await getSiteChrome(Astro.response));
 const { owner } = chrome.site;
-
-const heroImage =
-  cfImage("stoppel-supply-ks/hardware-1800x800px-shopify.png", { width: 1920 });
-
-const departments = [
-  {
-    title: "Automotive Parts",
-    image:
-      cfImage("stoppel-supply-ks/automotive-1800x300px-shopify.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our automotive parts department is your one-stop destination for keeping your vehicles running smoothly. From batteries and filters to belts, brakes, and fluids, we carry a wide selection of quality parts for every make and model. Our knowledgeable staff is ready to offer expert advice and hands-on guidance, ensuring you find the right components the first time. Whether you are a weekend mechanic or a professional technician, Stoppel Supply Company combines convenience, reliability, and hometown service to help you get back on the road with confidence.",
-  },
-  {
-    title: "Ag Supplies",
-    image:
-      cfImage("stoppel-supply-ks/a-red-tractor-sprays-fertilizer-over-a-brown-plowed-field-under-a-clear-sky-with-green-crops-in-the-background-symbolizing-farming-productivity.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our ag supplies department is your trusted destination for essential farm and ranch needs. We carry a wide selection of fencing, tools, hardware, and farm supplies to help keep your operation running smoothly. While we do not currently stock quality feed, livestock feed, or fertilizers for agricultural land, we do offer a limited selection of grass seed suitable for residential lawns. Our knowledgeable staff understands the unique challenges of agriculture in Kansas and is always ready to provide friendly, personalized service. When you choose Stoppel Supply Company, you gain more than supplies—you gain a dependable local partner committed to supporting your rural lifestyle.",
-  },
-  {
-    title: "Farm Supplies",
-    image:
-      cfImage("stoppel-supply-ks/farm-supplies-500x300px-shopify.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our farm supplies department is your one-stop destination for all things agriculture. From quality feed and fencing to tools, seeds, and fertilizers, we carry the products you need to keep your farm running smoothly. Our knowledgeable staff is ready to offer advice, recommendations, and hands-on support so you can make the right choices for your land, livestock, and crops. Whether you are a small family farm or a larger operation, Stoppel Supply Company provides reliable products, exceptional service, and a commitment to helping your farm thrive.",
-  },
-  {
-    title: "Hydraulic Hoses",
-    image:
-      cfImage("stoppel-supply-ks/hydraulic-hoses-500x300px-shopify-9bfc64e0-5742-4ba5-9a1f-e87909068fa1.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our hydraulic hose department is your go-to source for durable, high-quality hoses and fittings that keep your equipment running smoothly. Whether you are working on farm machinery, industrial equipment, or heavy-duty vehicles, we carry the parts you need to get the job done right. Our knowledgeable staff is ready to help you select the perfect hose, offer expert advice on installation, and ensure you leave with a solution built to last. Trust Stoppel Supply Company for hydraulic hoses that deliver performance, reliability, and peace of mind.",
-  },
-  {
-    title: "Industrial Supplies",
-    image:
-      cfImage("stoppel-supply-ks/store-500x300px-shopify-0d5a9780-49fb-49ea-a087-9bc9939f9971.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our industrial supplies department is built to keep your projects running smoothly. From heavy-duty hardware and cutting-edge tools to safety equipment and essential maintenance materials, we provide the quality products professionals trust. Our knowledgeable staff is ready to help you find the right solution for any job, whether you are outfitting a workshop, stocking a job site, or handling routine repairs. At Stoppel Supply Company, we are committed to offering dependable products and expert advice to help you work smarter, safer, and more efficiently.",
-  },
-  {
-    title: "Lawn & Garden",
-    image:
-      cfImage("stoppel-supply-ks/lawn-garden-500x300px-shopify.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our lawn and garden department is your one-stop destination for everything you need to make your yard and garden thrive. From premium seeds and fertilizers to top-quality tools and pest control solutions, we provide products that help your lawn stay lush and your garden flourish. In addition, we offer chainsaw chain sharpening services only to keep your equipment performing at its best. Whether you are planting your first flower bed or maintaining an expansive lawn, our knowledgeable staff is ready to offer expert advice and personalized recommendations. Stop by Stoppel Supply Company and discover how easy it is to bring your outdoor space to life.",
-  },
-  {
-    title: "Nuts, Bolts & Fasteners",
-    image:
-      cfImage("stoppel-supply-ks/hardware-500x300px-shopify-88093ce7-924f-41d6-a31b-56bf6adb2e72.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our nuts, bolts, and fasteners department is the backbone of every project, big or small. From sturdy bolts to dependable screws and specialty fasteners, we stock the quality hardware you need to get the job done right the first time. Our knowledgeable team is ready to help you find the perfect fit, whether you are working on home repairs, automotive projects, or professional construction. Count on Stoppel Supply Company for fasteners that deliver strength, reliability, and peace of mind with every connection.",
-  },
-  {
-    title: "Stihl Power Equipment",
-    image:
-      cfImage("stoppel-supply-ks/store-500x300px-shopify-ddcbd362-8651-4841-a02b-ade3f7b1234c.png", { width: 800 }),
-    body: "At Stoppel Supply Company in Russell, Kansas, our Stihl power equipment department is built to keep you working smarter and finishing stronger. We proudly carry the full line of Stihl power equipment products, from dependable tools for homeowners to professional-grade machines ready for the toughest tasks. You will also find a complete selection of genuine replacement parts and the right accessories to keep your equipment running at peak performance season after season. Stop in, gear up, and tackle your next project with confidence.",
-  },
-];
+const primary = chrome.site.locations[0] ?? null;
+const canonical = pageCanonical(Astro.url, Astro.site);
+const locationLabel = primary?.locality && primary?.administrative_area
+  ? `${primary.locality}, ${primary.administrative_area}`
+  : "Tell City, IN";
+const phone = primary?.phone ?? "(812) 547-2566";
 ---
 
 <SiteLayout
   {...chrome}
+  logo={images.logo}
   title={`Departments | ${owner.name}`}
-  description="Explore the departments at Stoppel Supply Company in Russell, KS — automotive parts, ag and farm supplies, hydraulic hoses, industrial supplies, lawn & garden, fasteners, and Stihl power equipment."
+  description={`Explore departments at ${owner.name} in Tell City, IN — hardware, electrical, tools, paint, plumbing, sporting goods, and seasonal supplies.`}
+  canonical={canonical}
+  ogImage={DEFAULT_OG_IMAGE}
+  locationsHref={locationsHref}
 >
+  <FaviconLinks slot="head" />
+
   <section class="dept-hero">
     <img
       class="dept-hero__img"
-      src={heroImage}
-      alt="Hardware and supplies at Stoppel Supply Company in Russell, Kansas"
+      src={images.deptHero}
+      alt={imageAlt.deptHero}
       fetchpriority="high"
       decoding="async"
     />
     <div class="dept-hero__overlay">
       <h1 class="dept-hero__title">Departments</h1>
-      <p class="dept-hero__loc">Russell, KS</p>
+      <p class="dept-hero__loc">{locationLabel}</p>
       <a class="ml-btn dept-hero__cta" href="/contact">Contact Us</a>
     </div>
   </section>
 
-  <div class="dept-rows">
-    {
-      departments.map((d) => (
-        <section class="dept-row">
-          <div class="dept-row__media">
-            <img
-              class="dept-row__img"
-              src={d.image}
-              alt={d.title}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <div class="dept-row__text">
-            <h2 class="dept-row__title">{d.title}</h2>
-            <p class="dept-row__body">{d.body}</p>
-          </div>
-        </section>
-      ))
-    }
+  <div class="page-flow">
+    <p class="page-intro">{departmentsIntro}</p>
+
+    <section class="block">
+      <ul class="dept-grid dept-grid--page">
+        {
+          departments.map((d) => (
+            <li class="dept-grid__item">
+              <span class="dept-grid__icon" aria-hidden="true">
+                <i class={d.icon}></i>
+              </span>
+              <div>
+                <h2>{d.title}</h2>
+                <p>{d.body}</p>
+                {
+                  d.bullets && d.bullets.length > 0 && (
+                    <ul class="dept-bullets">
+                      {d.bullets.map((item) => <li>{item}</li>)}
+                    </ul>
+                  )
+                }
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="cta-band">
+      <div>
+        <h2>Need something specific?</h2>
+        <p>Ask about special orders — our team can help track down hard-to-find items.</p>
+      </div>
+      <div class="cta-band__actions">
+        <a class="btn btn--primary" href="/contact">Contact Us</a>
+        <a class="btn btn--outline" href={telHref(phone)}>
+          <i class="fa-solid fa-phone" aria-hidden="true"></i> {phone}
+        </a>
+      </div>
+    </section>
   </div>
 </SiteLayout>
 
 <style>
-  /* The full-bleed hero below spans 100vw, which includes the vertical
-     scrollbar's width and overflows the page. Clip horizontal overflow at the
-     root so a stray horizontal scrollbar can never appear. (clip, not hidden,
-     leaves any position:sticky intact.) */
   :global(html) {
     overflow-x: clip;
   }
 
   .dept-hero {
     position: relative;
-    /* Full-bleed: break out of the centered .ml-container so the banner spans
-       the full viewport. The negative top margin cancels the container's top
-       padding so the hero sits flush under the header. */
     width: 100vw;
     left: 50%;
     right: 50%;
@@ -133,14 +105,14 @@ const departments = [
     overflow: hidden;
     background: var(--ml-color-surface-alt, #f3f4f6);
   }
+
   .dept-hero__img {
     display: block;
     width: 100%;
     height: clamp(240px, 40vw, 460px);
     object-fit: cover;
   }
-  /* Neutral black scrim (not the brand color) so the photography shows through
-     while keeping the overlaid text legible. */
+
   .dept-hero__overlay {
     position: absolute;
     inset: 0;
@@ -154,68 +126,37 @@ const departments = [
     color: #fff;
     background: rgba(0, 0, 0, 0.4);
   }
+
   .dept-hero__title {
     margin: 0;
     font-size: clamp(2rem, 5vw, 3.25rem);
     font-weight: 700;
     line-height: 1.1;
+    color: #fff;
   }
+
   .dept-hero__loc {
     margin: 0;
     font-size: 1.125rem;
     font-weight: 500;
-  }
-  .dept-hero__cta {
-    margin-top: 8px;
-    color: var(--ml-color-primary-contrast, #fff);
+    color: #fff;
   }
 
-  .dept-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 56px;
+  .dept-hero__cta {
+    margin-top: 8px;
+    color: #fff !important;
+  }
+
+  .page-flow {
     max-width: 1080px;
     margin: 0 auto 48px;
   }
-  .dept-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 40px;
-  }
-  /* Alternate the image to the right on every other row, mirroring the source. */
-  .dept-row:nth-child(even) .dept-row__media {
-    order: 2;
-  }
-  .dept-row__img {
-    display: block;
-    width: 100%;
-    border-radius: var(--ml-radius, 12px);
-    background: var(--ml-color-surface-alt, #f3f4f6);
-  }
-  .dept-row__title {
-    margin: 0 0 12px 0;
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--ml-color-text, #111827);
-    /* Brand-tinted accent rule under each department heading. */
-    padding-bottom: 8px;
-    border-bottom: 3px solid var(--ml-color-primary, #fdb104);
-  }
-  .dept-row__body {
-    margin: 0;
-    font-size: 1rem;
-    line-height: 1.7;
-    color: #374151;
-  }
 
-  @media (max-width: 720px) {
-    .dept-row {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-    .dept-row:nth-child(even) .dept-row__media {
-      order: 0;
-    }
+  .page-intro {
+    margin: 0 0 32px;
+    text-align: center;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--ml-color-muted, #6b7280);
   }
 </style>

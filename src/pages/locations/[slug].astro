@@ -1,0 +1,111 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { LocationDetail } from "@mightylocalsites/ui";
+import FaviconLinks from "../../components/FaviconLinks.astro";
+import InteriorHero from "../../components/InteriorHero.astro";
+import {
+  localBusinessJsonLd,
+  breadcrumbJsonLd,
+  jsonLdToString,
+  fullAddress,
+} from "@mightylocalsites/astro-data";
+import { getSiteChrome, getLocationSafe, applyCache } from "../../lib/site-chrome";
+import { resolveTimezone } from "../../data/site";
+import { imageAlt, images, locationsHref, withShopifyLogo } from "../../data/images";
+import { pageCanonical } from "../../lib/seo";
+import "../../styles/site.css";
+
+const { slug } = Astro.params;
+
+const chrome = withShopifyLogo(await getSiteChrome(Astro.response));
+const locationResult = await getLocationSafe(slug!, chrome);
+
+const { owner } = chrome.site;
+const location = locationResult.data;
+const canonical = pageCanonical(Astro.url, Astro.site);
+const locationDescription = location
+  ? `Visit ${location.name} at ${fullAddress(location)}. Store hours, directions, and contact information.`
+  : null;
+
+if (!location) {
+  Astro.response.status = 404;
+  Astro.response.headers.set("Cache-Control", "no-store");
+} else {
+  applyCache(Astro.response, locationResult.cacheControl);
+}
+
+const businessLd = location ? localBusinessJsonLd(location, owner, canonical) : null;
+const crumbsLd = location
+  ? breadcrumbJsonLd([
+      { name: "Locations", url: new URL("/locations", canonical).href },
+      { name: location.name, url: canonical },
+    ])
+  : null;
+
+const heroImage = location?.image?.src ?? images.heroWelcome;
+const heroAlt = location?.image?.alt ?? imageAlt.heroWelcome;
+const locationLabel = location?.locality && location?.administrative_area
+  ? `${location.locality}, ${location.administrative_area}`
+  : "Tell City, IN";
+---
+
+{
+  location ? (
+    <SiteLayout
+      {...chrome}
+      logo={images.logo}
+      title={`${location.name} | ${owner.name}`}
+      description={locationDescription!}
+      canonical={canonical}
+      ogImage={location.image?.src ?? images.heroWelcome}
+      locationsHref={locationsHref}
+    >
+      <Fragment slot="head">
+        <FaviconLinks />
+        <script type="application/ld+json" is:inline set:html={jsonLdToString(businessLd!)} />
+        <script type="application/ld+json" is:inline set:html={jsonLdToString(crumbsLd!)} />
+      </Fragment>
+
+      <InteriorHero
+        image={heroImage}
+        alt={heroAlt}
+        title={location.name}
+        location={locationLabel}
+        cta={{ label: "Contact Us", href: "/contact" }}
+      />
+
+      <div class="page-flow page-flow--flush">
+        <LocationDetail
+          location={location}
+          timezone={resolveTimezone(owner.timezone)}
+          indexHref="/locations"
+        />
+      </div>
+    </SiteLayout>
+  ) : (
+    <SiteLayout
+      {...chrome}
+      logo={images.logo}
+      title={`Location not found | ${owner.name}`}
+      description="This location could not be found."
+      locationsHref={locationsHref}
+    >
+      <FaviconLinks slot="head" />
+      <div class="page-flow">
+        <div style="text-align:center; padding:64px 20px;">
+          <h1 style="margin:0 0 12px;">Location not found</h1>
+          <p style="color:var(--ml-color-muted); margin:0 0 24px;">
+            We couldn't find that location. It may have moved or closed.
+          </p>
+          <a class="ml-btn" href={locationsHref}>View location</a>
+        </div>
+      </div>
+    </SiteLayout>
+  )
+}
+
+<style>
+  :global(html) {
+    overflow-x: clip;
+  }
+</style>

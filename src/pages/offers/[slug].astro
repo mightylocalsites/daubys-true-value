@@ -1,0 +1,66 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { OfferDetail } from "@mightylocalsites/ui";
+import FaviconLinks from "../../components/FaviconLinks.astro";
+import { getSiteChrome, getSiteContentSafe, applyCache } from "../../lib/site-chrome";
+import { images, locationsHref, withShopifyLogo } from "../../data/images";
+import { pageCanonical } from "../../lib/seo";
+import "../../styles/site.css";
+
+const { slug } = Astro.params;
+
+const [chrome, content] = await Promise.all([
+  getSiteChrome(Astro.response),
+  getSiteContentSafe(Astro.response, ["offers"]),
+]);
+withShopifyLogo(chrome);
+
+const { owner } = chrome.site;
+const offer = (content.data.offers ?? []).find((o) => o.slug === slug);
+const canonical = pageCanonical(Astro.url, Astro.site);
+
+if (!offer) {
+  Astro.response.status = 404;
+  Astro.response.headers.set("Cache-Control", "no-store");
+} else {
+  applyCache(Astro.response, content.cacheControl);
+}
+---
+
+{
+  offer ? (
+    <SiteLayout
+      {...chrome}
+      logo={images.logo}
+      title={`${offer.title} | ${owner.name}`}
+      description={offer.short_description ?? `An offer from ${owner.name}.`}
+      canonical={canonical}
+      ogImage={offer.image?.src ?? images.heroWelcome}
+      locationsHref={locationsHref}
+    >
+      <FaviconLinks slot="head" />
+      <div class="page-flow">
+        <OfferDetail offer={offer} indexHref="/offers" />
+      </div>
+    </SiteLayout>
+  ) : (
+    <SiteLayout
+      {...chrome}
+      logo={images.logo}
+      title={`Offer not found | ${owner.name}`}
+      description="This offer could not be found."
+      locationsHref={locationsHref}
+    >
+      <FaviconLinks slot="head" />
+      <div class="page-flow">
+        <div style="text-align:center; padding:64px 20px;">
+          <h1 style="margin:0 0 12px;">Offer not found</h1>
+          <p style="color:var(--ml-color-muted); margin:0 0 24px;">
+            We couldn't find that offer. It may have expired or been removed.
+          </p>
+          <a class="ml-btn" href="/offers">View all offers</a>
+        </div>
+      </div>
+    </SiteLayout>
+  )
+}

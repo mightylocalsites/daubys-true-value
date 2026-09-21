@@ -1,0 +1,80 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { EventDetail } from "@mightylocalsites/ui";
+import FaviconLinks from "../../components/FaviconLinks.astro";
+import { eventJsonLd, breadcrumbJsonLd, jsonLdToString } from "@mightylocalsites/astro-data";
+import { getSiteChrome, getSiteContentSafe, applyCache } from "../../lib/site-chrome";
+import { images, locationsHref, withShopifyLogo } from "../../data/images";
+import { pageCanonical } from "../../lib/seo";
+import "../../styles/site.css";
+
+const { slug } = Astro.params;
+
+const [chrome, content] = await Promise.all([
+  getSiteChrome(Astro.response),
+  getSiteContentSafe(Astro.response, ["events"]),
+]);
+withShopifyLogo(chrome);
+
+const { owner } = chrome.site;
+const event = (content.data.events ?? []).find((e) => e.slug === slug);
+const canonical = pageCanonical(Astro.url, Astro.site);
+
+if (!event) {
+  Astro.response.status = 404;
+  Astro.response.headers.set("Cache-Control", "no-store");
+} else {
+  applyCache(Astro.response, content.cacheControl);
+}
+
+const eventLd = event ? eventJsonLd(event, owner, canonical) : null;
+const crumbsLd = event
+  ? breadcrumbJsonLd([
+      { name: "Events", url: new URL("/events", canonical).href },
+      { name: event.title, url: canonical },
+    ])
+  : null;
+---
+
+{
+  event ? (
+    <SiteLayout
+      {...chrome}
+      logo={images.logo}
+      title={`${event.title} | ${owner.name}`}
+      description={event.short_description ?? `An event at ${owner.name}.`}
+      canonical={canonical}
+      ogImage={event.image?.src ?? images.heroWelcome}
+      locationsHref={locationsHref}
+    >
+      <Fragment slot="head">
+        <FaviconLinks />
+        <script type="application/ld+json" is:inline set:html={jsonLdToString(eventLd!)} />
+        <script type="application/ld+json" is:inline set:html={jsonLdToString(crumbsLd!)} />
+      </Fragment>
+
+      <div class="page-flow">
+        <EventDetail event={event} indexHref="/events" />
+      </div>
+    </SiteLayout>
+  ) : (
+    <SiteLayout
+      {...chrome}
+      logo={images.logo}
+      title={`Event not found | ${owner.name}`}
+      description="This event could not be found."
+      locationsHref={locationsHref}
+    >
+      <FaviconLinks slot="head" />
+      <div class="page-flow">
+        <div style="text-align:center; padding:64px 20px;">
+          <h1 style="margin:0 0 12px;">Event not found</h1>
+          <p style="color:var(--ml-color-muted); margin:0 0 24px;">
+            We couldn't find that event. It may have ended or been removed.
+          </p>
+          <a class="ml-btn" href="/events">View all events</a>
+        </div>
+      </div>
+    </SiteLayout>
+  )
+}

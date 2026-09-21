@@ -16,7 +16,7 @@ import {
 import { localBusinessJsonLd, jsonLdToString } from "@mightylocalsites/astro-data";
 import { imageAlt, images, locationsHref, withShopifyLogo } from "../data/images";
 import { DEFAULT_OG_IMAGE, pageCanonical } from "../lib/seo";
-import { services, siteTagline } from "../data/content";
+import { homeDepartments, homeServices, siteTagline } from "../data/content";
 import "../styles/site.css";
 
 const { apiBaseUrl, host } = getSiteConfig();
@@ -64,41 +64,17 @@ const introCards = [
   { label: "Location & Hours", href: locationsHref, icon: "fa-solid fa-location-dot" },
 ];
 
-const departments = [
-  {
-    title: "Paint & Supplies",
-    image: images.deptPaint,
-    alt: imageAlt.deptPaint,
-  },
-  {
-    title: "Electrical",
-    image: images.deptElectrical,
-    alt: imageAlt.deptElectrical,
-  },
-  {
-    title: "Plumbing Supplies",
-    image: images.deptPlumbing,
-    alt: imageAlt.deptPlumbing,
-  },
-  {
-    title: "Tools",
-    image: images.deptTools,
-    alt: imageAlt.deptTools,
-  },
-];
+const departments = homeDepartments.map((d) => ({
+  title: d.title === "Plumbing" ? "Plumbing Supplies" : d.title,
+  image: images[d.homepageImage!],
+  alt: imageAlt[d.homepageImage!],
+}));
 
-const servicesCards = [
-  {
-    title: services[0]!.title,
-    image: images.serviceLockRekeying,
-    alt: imageAlt.serviceLockRekeying,
-  },
-  {
-    title: services[1]!.title,
-    image: images.serviceSpecialOrdering,
-    alt: imageAlt.serviceSpecialOrdering,
-  },
-];
+const servicesCards = homeServices.map((s) => ({
+  title: s.title,
+  image: images[s.homepageImage!],
+  alt: imageAlt[s.homepageImage!],
+}));
 
 const banner = {
   image: images.bannerPaintMatching,

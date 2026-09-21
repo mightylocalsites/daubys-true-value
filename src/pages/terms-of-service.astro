@@ -1,0 +1,52 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import FaviconLinks from "../components/FaviconLinks.astro";
+import { getSiteChrome } from "../lib/site-chrome";
+import { images, locationsHref, withShopifyLogo } from "../data/images";
+import { html } from "../data/terms-of-service";
+import { pageCanonical } from "../lib/seo";
+import "../styles/site.css";
+
+const chrome = withShopifyLogo(await getSiteChrome(Astro.response));
+const { owner } = chrome.site;
+const canonical = pageCanonical(Astro.url, Astro.site);
+---
+
+<SiteLayout
+  {...chrome}
+  logo={images.logo}
+  title={`Terms of Service | ${owner.name}`}
+  description={`Terms of Service for ${owner.name} in Tell City, IN.`}
+  canonical={canonical}
+  locationsHref={locationsHref}
+>
+  <FaviconLinks slot="head" />
+  <header class="page-hero">
+    <p class="page-hero__eyebrow">Legal</p>
+    <h1>Terms of Service</h1>
+  </header>
+  <article class="policy" set:html={html} />
+</SiteLayout>
+
+<style>
+  .policy {
+    max-width: 72ch;
+    margin: 0 0 48px;
+    color: var(--ml-color-text);
+    line-height: 1.65;
+  }
+  .policy :global(p) {
+    margin: 0 0 1em;
+  }
+  .policy :global(a) {
+    color: var(--ml-color-primary);
+  }
+  .policy :global(ul),
+  .policy :global(ol) {
+    margin: 0 0 1em;
+    padding-left: 1.25em;
+  }
+  .policy :global(strong) {
+    font-weight: 700;
+  }
+</style>
