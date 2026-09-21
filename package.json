@@ -1,0 +1,30 @@
+{
+  "name": "@mightylocalsites/daubys-true-value",
+  "version": "0.0.1",
+  "description": "Per-site Astro template (SSR on Cloudflare Workers) for a MightyLocal site, restructured stack.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typegen": "wrangler types",
+    "predev": "wrangler types",
+    "dev": "astro dev",
+    "prebuild": "wrangler types",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "pretypecheck": "wrangler types",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.7.0",
+    "@mightylocalsites/astro-data": "^0.3.0",
+    "@mightylocalsites/astro-site": "^5.1.0",
+    "@mightylocalsites/astro-ui-minimal": "^4.0.0",
+    "astro": "^6.4.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.2",
+    "@types/node": "^25.9.1",
+    "typescript": "^5.9.3"
+  }
+}

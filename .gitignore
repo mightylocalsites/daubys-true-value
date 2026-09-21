@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+worker-configuration.d.ts
+image-manifest.json
+
+# Local images are migrated to R2 (npx mighty-migrate-images) — don't commit
+# local copies. Re-include specific assets that must stay in the repo below.
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.avif
+!public/favicon.*
+
+.DS_Store
+npm-debug.log*

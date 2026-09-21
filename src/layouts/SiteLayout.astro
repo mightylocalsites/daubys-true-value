@@ -1,0 +1,139 @@
+---
+/**
+ * Site layout — local override for pre-header, header, and footer.
+ */
+import BaseLayout from "@mightylocalsites/astro-ui-minimal/layouts/BaseLayout.astro";
+import {
+  StayConnectedModal,
+  GoogleAnalytics,
+} from "@mightylocalsites/ui";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import PreHeader from "../components/PreHeader.astro";
+import { fullAddress, socialLinks, storeStatus } from "@mightylocalsites/astro-data";
+import type { SiteData, NavItem } from "@mightylocalsites/astro-data";
+import "../styles/site.css";
+
+interface Attribution {
+  text: string;
+  href?: string | null;
+}
+
+const DEFAULT_ATTRIBUTION: Attribution = {
+  text: "Site Designed and Managed by New Media Retailer",
+  href: "https://newmediaretailer.com",
+};
+
+interface Props {
+  site: SiteData;
+  apiBaseUrl?: string;
+  host?: string;
+  title: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string | null;
+  lang?: string;
+  nav?: NavItem[];
+  footerNav?: NavItem[];
+  logo?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  locationsHref?: string | null;
+  address?: string | null;
+  addressHref?: string | null;
+  attribution?: Attribution | null;
+}
+
+const {
+  site,
+  apiBaseUrl,
+  host,
+  title,
+  description,
+  canonical,
+  ogImage,
+  lang = "en",
+  nav = [],
+  footerNav = [],
+  logo = null,
+  phone = null,
+  email = null,
+  locationsHref = "/locations",
+  address = null,
+  addressHref = null,
+  attribution = DEFAULT_ATTRIBUTION,
+} = Astro.props;
+
+const { owner, locations = [], profiles } = site;
+const social = socialLinks(profiles);
+const primary = locations[0] ?? null;
+const preheaderPhone = phone ?? primary?.phone ?? null;
+const preheaderEmail = email ?? primary?.email ?? null;
+const preheaderAddress = address ?? (primary ? fullAddress(primary) : null);
+const preheaderStatus = primary
+  ? storeStatus(primary.business_hours, primary.special_hours, owner.timezone)
+  : null;
+const headerLogo = logo ?? owner.logo;
+const customerCapture = site.site?.settings?.customer_capture;
+const showStayConnected =
+  !customerCapture?.disabled && !!apiBaseUrl && !!host;
+const turnstileSiteKey = site.site?.settings?.turnstile?.site_key ?? null;
+const stayConnectedHeadline = site.scannables?.[0]?.title ?? null;
+const stayConnectedCodeType = site.scannables?.[0]?.code_type ?? null;
+const gaMeasurementId = site.site?.settings?.analytics?.ga_measurement_id ?? null;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  lang={lang}
+>
+  <slot name="head" slot="head" />
+  <GoogleAnalytics measurementId={gaMeasurementId} slot="head" />
+
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <PreHeader
+    address={preheaderAddress}
+    addressHref={addressHref ?? locationsHref}
+    status={preheaderStatus}
+    phone={preheaderPhone}
+    email={preheaderEmail}
+    social={social}
+  />
+  <Header
+    siteName={owner.name}
+    logo={headerLogo}
+    nav={nav}
+  />
+
+  <main id="main-content" class="ml-page" tabindex="-1">
+    <div class="ml-container">
+      <slot />
+    </div>
+  </main>
+
+  <Footer
+    siteName={owner.name}
+    nav={footerNav}
+    social={social}
+    attribution={attribution}
+  />
+
+  {
+    showStayConnected && (
+      <StayConnectedModal
+        apiBaseUrl={apiBaseUrl!}
+        host={host!}
+        turnstileSiteKey={turnstileSiteKey}
+        headline={stayConnectedHeadline}
+        codeType={stayConnectedCodeType}
+        ownerName={owner.name}
+        logoUrl={owner.logo}
+        showFrequency={customerCapture?.show_frequency}
+        reshowAfterDays={customerCapture?.reshow_after_days}
+      />
+    )
+  }
+</BaseLayout>

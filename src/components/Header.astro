@@ -1,0 +1,195 @@
+---
+/**
+ * Site header with primary nav.
+ */
+import type { NavItem } from "@mightylocalsites/astro-data";
+
+interface Props {
+  siteName: string;
+  homeHref?: string;
+  logo?: string | null;
+  nav?: NavItem[];
+}
+
+const {
+  siteName,
+  homeHref = "/",
+  logo = null,
+  nav = [],
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+
+function isCurrentNav(href: string): boolean {
+  if (href === "/") return currentPath === "/";
+  return currentPath === href || currentPath.startsWith(`${href}/`);
+}
+---
+
+<header class="ml-header">
+  <div class="ml-header__inner">
+    <a class="ml-header__brand" href={homeHref}>
+      {
+        logo ? (
+          <img src={logo} alt={siteName} height="100" decoding="async" />
+        ) : (
+          <span>{siteName}</span>
+        )
+      }
+    </a>
+
+    {
+      nav.length > 0 && (
+        <div class="ml-header__actions">
+          <details class="ml-header__disclosure">
+            <summary class="ml-header__toggle" aria-label="Toggle menu">
+              <svg
+                class="ml-header__toggle-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5"
+                />
+              </svg>
+            </summary>
+            <nav class="ml-header__nav" aria-label="Primary">
+              {nav.map((item) => (
+                <a href={item.href} aria-current={isCurrentNav(item.href) ? "page" : undefined}>
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </details>
+        </div>
+      )
+    }
+  </div>
+</header>
+
+<style>
+  .ml-header {
+    background: var(--ml-color-bg, #fff);
+  }
+  .ml-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 1.5rem;
+  }
+  .ml-header__brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ml-color-text, #111827);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  .ml-header__brand img {
+    display: block;
+    width: auto;
+  }
+
+  .ml-header__actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .ml-header__disclosure {
+    position: relative;
+  }
+  .ml-header__toggle {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: var(--ml-radius-sm, 8px);
+    color: var(--ml-color-text, #111827);
+    cursor: pointer;
+  }
+  .ml-header__toggle::-webkit-details-marker {
+    display: none;
+  }
+  .ml-header__toggle:focus-visible {
+    outline: 2px solid var(--fh-gold);
+    outline-offset: 2px;
+  }
+  .ml-header__toggle-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .ml-header__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 200px;
+    padding: 8px;
+    background: var(--ml-color-bg, #fff);
+    border: 1px solid var(--ml-color-border, #e5e7eb);
+    border-radius: var(--ml-radius-sm, 8px);
+    box-shadow: var(--ml-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+    z-index: 20;
+  }
+  .ml-header__nav a {
+    color: var(--ml-color-text, #111827);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: var(--ml-radius-sm, 8px);
+  }
+  .ml-header__nav a:hover {
+    color: var(--ml-color-primary, #2563eb);
+    background: var(--ml-color-surface-alt, #f3f4f6);
+  }
+  .ml-header__nav a:focus-visible {
+    outline: 2px solid var(--fh-gold);
+    outline-offset: 2px;
+  }
+  .ml-header__nav a[aria-current="page"] {
+    color: var(--fh-gold-darker);
+    font-weight: 600;
+  }
+
+  @media (min-width: 768px) {
+    .ml-header__inner {
+      padding-inline: 4rem;
+    }
+    .ml-header__toggle {
+      display: none;
+    }
+    .ml-header__disclosure::details-content {
+      content-visibility: visible;
+      display: contents;
+    }
+    .ml-header__nav {
+      display: flex !important;
+      flex-direction: row;
+      gap: 24px;
+      position: static;
+      min-width: 0;
+      padding: 0;
+      background: none;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .ml-header__nav a {
+      padding: 0;
+    }
+    .ml-header__nav a:hover {
+      background: none;
+    }
+  }
+</style>

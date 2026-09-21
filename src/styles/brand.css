@@ -1,0 +1,22 @@
+/*
+ * Per-site brand color for Stoppel Supply Company.
+ *
+ * Both targets the brand specifies derive from one token:
+ *   - pre-header background → var(--ml-preheader-bg, var(--ml-color-primary, …))
+ *   - buttons (.ml-btn)     → var(--ml-color-btn-bg) → var(--ml-color-primary)
+ * so overriding --ml-color-primary alone recolors both.
+ *
+ * #fdb104 is a light amber, so the theme's default white foreground
+ * (--ml-color-primary-contrast) reads low-contrast on it. Override the contrast
+ * token to a near-black: it flows into the button text (--ml-color-btn-contrast)
+ * and the pre-header text alike, and into this site's hero/banner CTAs, which
+ * also fall back to --ml-color-primary-contrast.
+ *
+ * The doubled `:root:root` selector raises specificity above the theme's
+ * single-`:root` default (@mightylocalsites/astro-ui-minimal) so this wins no
+ * matter what order the stylesheets load in.
+ */
+:root:root {
+  --ml-color-primary: #fdb104;
+  --ml-color-primary-contrast: #1f2937;
+}

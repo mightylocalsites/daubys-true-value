@@ -1,0 +1,172 @@
+---
+import { cfImage } from "@mightylocalsites/astro-data";
+/**
+ * /about-us — mirrors the <main> content of
+ * stoppel-supply-company.myshopify.com/pages/about-us: a full-bleed hero banner
+ * followed by the company's history. Static copy, so the only v1 data fetched is
+ * the site chrome (owner/locations/announcements) that SiteLayout needs. Images
+ * are live Shopify CDN URLs as plain <img> (`mighty-migrate-images` rewrites
+ * them to R2 + cfImage() later). Same hero/row pattern as /departments.
+ */
+import { SiteLayout } from "@mightylocalsites/ui";
+import { getSiteChrome } from "../lib/site-chrome";
+
+const chrome = await getSiteChrome(Astro.response);
+const { owner } = chrome.site;
+
+const heroImage =
+  cfImage("stoppel-supply-ks/automotive-1800x800px-shopify-ff8a6aa5-4760-423a-b1d8-0f33de6f11df.png", { width: 1920 });
+const storyImage =
+  cfImage("stoppel-supply-ks/hardware-500x300px-shopify.png", { width: 800 });
+
+const story = [
+  "Founded in 1975, Stoppel Supply Co. was built on the vision and determination of Melvin Stoppel to own and operate his own parts store in Russell, Kansas. From an early age, Melvin developed a strong work ethic, shining shoes in a downtown pool hall, delivering newspapers by bicycle, and taking on various jobs around town. During high school, he began working at the local Studebaker Garage before moving on to Russell Automotive Parts Store.",
+  "In 1961, Melvin joined the parts department at Vincent Motor Co., the local Ford dealership owned by L.A. Vincent. By 1965, he had advanced to Parts Manager, gaining valuable hands-on experience in inventory management and the automotive parts industry that would later help shape his own business.",
+  "In the fall of 1975, Melvin officially opened Stoppel Supply Co. with little capital and no formal college education, but with the unwavering support of his wife, Janice, and their children, Brenda, Melissa, and Keith. The early years were challenging as Melvin worked tirelessly to grow inventory, support his employees, and provide for his family. Through hard work, perseverance, and dedication to customer service, the business steadily grew into a trusted name in the community.",
+  "Today, Stoppel Supply Co. remains a proud family-owned and operated business. Janice continues to be involved alongside daughters Brenda Roberts and Melissa Dreher. The third generation of the family, Julie Dreher and Dustin Dreher, are also active in the business after working part-time throughout their high school and college years. Family has always been at the heart of Stoppel Supply Co., with Brenda beginning work in the store as a freshman in high school in 1975 and Melissa joining full-time in 1994.",
+  "Melvin's philosophy has always been simple: 'If we don't have it, you don't need it.' That commitment to serving customers continues today as Stoppel Supply Co. has grown into a full-line automotive parts store affiliated with Bumper to Bumper. In addition to automotive parts, the store offers STIHL products and service, lawn and garden equipment parts, farm and ranch supplies, hardware, and much more.",
+];
+---
+
+<SiteLayout
+  {...chrome}
+  title={`About | ${owner.name}`}
+  description="The story of Stoppel Supply Company — a family-owned automotive parts, hardware, and farm supply store serving Russell, KS since 1975."
+>
+  <section class="page-hero">
+    <img
+      class="page-hero__img"
+      src={heroImage}
+      alt="Stoppel Supply Company in Russell, Kansas"
+      fetchpriority="high"
+      decoding="async"
+    />
+    <div class="page-hero__overlay">
+      <h1 class="page-hero__title">About Stoppel Supply Company</h1>
+      <p class="page-hero__loc">Russell, KS</p>
+      <a class="ml-btn page-hero__cta" href="/contact">Contact Us</a>
+    </div>
+  </section>
+
+  <section class="info-row">
+    <div class="info-row__media">
+      <img
+        class="info-row__img"
+        src={storyImage}
+        alt="Hardware and supplies at Stoppel Supply Company"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div class="info-row__text">
+      <h2 class="info-row__title">Our Story</h2>
+      {story.map((p) => <p class="info-row__body">{p}</p>)}
+    </div>
+  </section>
+</SiteLayout>
+
+<style>
+  /* The full-bleed hero below spans 100vw, which includes the vertical
+     scrollbar's width and overflows the page. Clip horizontal overflow at the
+     root so a stray horizontal scrollbar can never appear. (clip, not hidden,
+     leaves any position:sticky intact.) */
+  :global(html) {
+    overflow-x: clip;
+  }
+
+  .page-hero {
+    position: relative;
+    /* Full-bleed: break out of the centered .ml-container so the banner spans
+       the full viewport. The negative top margin cancels the container's top
+       padding so the hero sits flush under the header. */
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin: -20px -50vw 48px;
+    overflow: hidden;
+    background: var(--ml-color-surface-alt, #f3f4f6);
+  }
+  .page-hero__img {
+    display: block;
+    width: 100%;
+    height: clamp(240px, 40vw, 460px);
+    object-fit: cover;
+  }
+  /* Neutral black scrim (not the brand color) so the photography shows through
+     while keeping the overlaid text legible. */
+  .page-hero__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    padding: 24px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.4);
+  }
+  .page-hero__title {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .page-hero__loc {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  .page-hero__cta {
+    margin-top: 8px;
+    color: var(--ml-color-primary-contrast, #fff);
+  }
+
+  .info-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 40px;
+    max-width: 1080px;
+    margin: 0 auto 48px;
+  }
+  .info-row__media {
+    position: sticky;
+    top: 24px;
+  }
+  .info-row__img {
+    display: block;
+    width: 100%;
+    border-radius: var(--ml-radius, 12px);
+    background: var(--ml-color-surface-alt, #f3f4f6);
+  }
+  .info-row__title {
+    margin: 0 0 12px 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--ml-color-text, #111827);
+    /* Brand-tinted accent rule under the heading. */
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--ml-color-primary, #fdb104);
+  }
+  .info-row__body {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #374151;
+  }
+  .info-row__body:last-child {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 720px) {
+    .info-row {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .info-row__media {
+      position: static;
+    }
+  }
+</style>

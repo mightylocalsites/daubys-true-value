@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "daubys-true-value",
+  "compatibility_date": "2026-05-29",
+  "compatibility_flags": ["nodejs_compat"]
+  // Cloudflare Workers project (the @astrojs/cloudflare adapter targets Workers,
+  // not Pages — do NOT add `pages_build_output_dir`). `astro build` emits the
+  // worker to ./dist/server and static assets to ./dist/client, and writes the
+  // deployable config to ./dist/server/wrangler.json (adding `main` + the
+  // `ASSETS` assets binding). Deploy with `wrangler deploy` — it follows the
+  // .wrangler/deploy/config.json redirect to that generated config.
+  //
+  // The adapter wires a `SESSION` KV session driver; create a namespace
+  // (`wrangler kv namespace create SESSION`) and pin it so CI deploys don't rely
+  // on flaky auto-provisioning:
+  //   "kv_namespaces": [{ "binding": "SESSION", "id": "<id>" }]
+  //
+  // Env vars (MIGHTY_API_BASE_URL, MIGHTY_SITE_HOST) are set as Worker vars in
+  // the dashboard / via `wrangler` (prod) and `.dev.vars` (dev) — not declared
+  // here so an empty default can't shadow them. Run `npm run typegen` after
+  // adding any KV/other bindings.
+}

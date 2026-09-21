@@ -1,0 +1,118 @@
+---
+/**
+ * Site footer — centered policy links, social icons, and store credit line.
+ */
+import { ensureHttp } from "@mightylocalsites/astro-data";
+import { SocialLinks } from "@mightylocalsites/ui";
+import type { SocialLink, NavItem } from "@mightylocalsites/astro-data";
+
+interface Attribution {
+  text: string;
+  href?: string | null;
+}
+
+interface Props {
+  siteName: string;
+  nav?: NavItem[];
+  social?: SocialLink[];
+  attribution?: Attribution | null;
+}
+
+const { siteName, nav = [], social = [], attribution = null } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="ml-footer">
+  <div class="ml-footer__inner ml-container">
+    {
+      nav.length > 0 && (
+        <nav class="ml-footer__nav" aria-label="Footer">
+          {nav.map((item) => (
+            <a href={item.href}>{item.label}</a>
+          ))}
+        </nav>
+      )
+    }
+
+    {
+      social.length > 0 && (
+        <div class="ml-footer__social">
+          <SocialLinks links={social} />
+        </div>
+      )
+    }
+
+    <p class="ml-footer__copy">© {year} {siteName}. All rights reserved.</p>
+
+    {
+      attribution && (
+        <p class="ml-footer__attribution">
+          {attribution.href ? (
+            <a href={ensureHttp(attribution.href)} target="_blank" rel="noopener noreferrer">
+              {attribution.text}
+            </a>
+          ) : (
+            attribution.text
+          )}
+        </p>
+      )
+    }
+  </div>
+</footer>
+
+<style>
+  .ml-footer {
+    background: var(--ml-color-bg, #fff);
+    border-top: 1px solid var(--ml-color-border, #e5e7eb);
+    margin-top: 48px;
+  }
+  .ml-footer__inner {
+    padding-top: 80px;
+    padding-bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+  .ml-footer__nav {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+  .ml-footer__nav a {
+    color: var(--ml-color-muted, #6b7280);
+    text-decoration: none;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .ml-footer__nav a:hover {
+    color: var(--ml-color-text, #111827);
+  }
+
+  .ml-footer__social {
+    display: flex;
+    justify-content: center;
+    color: var(--ml-color-muted, #6b7280);
+  }
+
+  .ml-footer__copy,
+  .ml-footer__attribution {
+    margin: 0;
+    text-align: center;
+    color: var(--ml-color-muted, #6b7280);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+  .ml-footer__attribution a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ml-footer__attribution a:hover {
+    color: var(--ml-color-text, #111827);
+  }
+
+  .ml-footer__copy + .ml-footer__attribution {
+    margin-top: -28px;
+  }
+</style>

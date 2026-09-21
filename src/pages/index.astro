@@ -1,0 +1,831 @@
+---
+/**
+ * Homepage — Stoppel-style layout: full-bleed hero carousel, intro link row,
+ * special offers, featured departments, paint matching banner, services grid,
+ * optional reviews, and contact form. Content is Dauby's True Value Hardware.
+ */
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { ContactForm, ElfSightGoogleReviews, OfferList } from "@mightylocalsites/ui";
+import FaviconLinks from "../components/FaviconLinks.astro";
+import {
+  applyCache,
+  getSiteChrome,
+  getSiteConfig,
+  getSiteContentSafe,
+} from "../lib/site-chrome";
+import { localBusinessJsonLd, jsonLdToString } from "@mightylocalsites/astro-data";
+import { imageAlt, images, locationsHref, withShopifyLogo } from "../data/images";
+import { DEFAULT_OG_IMAGE, pageCanonical } from "../lib/seo";
+import { services, siteTagline } from "../data/content";
+import "../styles/site.css";
+
+const { apiBaseUrl, host } = getSiteConfig();
+const [chrome, content] = await Promise.all([
+  getSiteChrome(Astro.response),
+  getSiteContentSafe(Astro.response, ["offers"]),
+]);
+withShopifyLogo(chrome);
+applyCache(Astro.response, content.cacheControl);
+
+const { owner } = chrome.site;
+const primary = chrome.site.locations[0] ?? null;
+const offers = content.data.offers ?? [];
+const reviews = chrome.site.site?.settings?.elfsight?.gbp_reviews?.trim();
+const turnstileSiteKey = chrome.site.site?.settings?.turnstile?.site_key ?? null;
+const canonical = pageCanonical(Astro.url, Astro.site);
+const businessLd = primary
+  ? localBusinessJsonLd(primary, owner, canonical)
+  : null;
+
+const locationLabel = primary?.city && primary?.state
+  ? `${primary.city}, ${primary.state}`
+  : "Tell City, IN";
+
+const slides = [
+  {
+    image: images.heroWelcome,
+    alt: imageAlt.heroWelcome,
+    title: "Welcome to Dauby's True Value Hardware",
+    location: locationLabel,
+    cta: { label: "Contact Us", href: "/contact" },
+  },
+  {
+    image: images.heroDepartments,
+    alt: imageAlt.heroDepartments,
+    title: "Explore Our Popular Departments",
+    location: locationLabel,
+    cta: { label: "View All Departments", href: "/departments" },
+  },
+];
+
+const introCards = [
+  { label: "Departments", href: "/departments", icon: "fa-solid fa-store" },
+  { label: "Services", href: "/services", icon: "fa-solid fa-screwdriver-wrench" },
+  { label: "Location & Hours", href: locationsHref, icon: "fa-solid fa-location-dot" },
+];
+
+const departments = [
+  {
+    title: "Paint & Supplies",
+    image: images.deptPaint,
+    alt: imageAlt.deptPaint,
+  },
+  {
+    title: "Electrical",
+    image: images.deptElectrical,
+    alt: imageAlt.deptElectrical,
+  },
+  {
+    title: "Plumbing Supplies",
+    image: images.deptPlumbing,
+    alt: imageAlt.deptPlumbing,
+  },
+  {
+    title: "Tools",
+    image: images.deptTools,
+    alt: imageAlt.deptTools,
+  },
+];
+
+const servicesCards = [
+  {
+    title: services[0]!.title,
+    image: images.serviceLockRekeying,
+    alt: imageAlt.serviceLockRekeying,
+  },
+  {
+    title: services[1]!.title,
+    image: images.serviceSpecialOrdering,
+    alt: imageAlt.serviceSpecialOrdering,
+  },
+];
+
+const banner = {
+  image: images.bannerPaintMatching,
+  title: "Paint Matching & Mixing",
+  location: locationLabel,
+  cta: { label: "More Information", href: "/services" },
+};
+---
+
+<SiteLayout
+  {...chrome}
+  logo={images.logo}
+  title={`${owner.name} — Hardware in Tell City, IN`}
+  description={`${siteTagline} Paint, electrical, plumbing, tools, and helpful services in Tell City, IN.`}
+  canonical={canonical}
+  ogImage={DEFAULT_OG_IMAGE}
+  locationsHref={locationsHref}
+>
+  <FaviconLinks slot="head" />
+  {businessLd && (
+    <script type="application/ld+json" is:inline set:html={jsonLdToString(businessLd)} slot="head" />
+  )}
+
+  <section class="hero" data-carousel aria-roledescription="carousel" aria-label="Featured promotions">
+    <div class="hero__viewport" data-live aria-live="off">
+      {
+        slides.map((slide, i) => (
+          <div
+            class="hero__slide"
+            data-slide
+            class:list={[{ "is-active": i === 0 }]}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`Slide ${i + 1} of ${slides.length}`}
+            aria-hidden={i !== 0 ? "true" : "false"}
+            inert={i !== 0}
+          >
+            <img
+              class="hero__img"
+              src={slide.image}
+              alt={slide.alt}
+              fetchpriority={i === 0 ? "high" : undefined}
+              loading={i === 0 ? "eager" : "lazy"}
+              decoding="async"
+            />
+            <div class="hero__overlay">
+              <h1 class="hero__title">{slide.title}</h1>
+              <p class="hero__loc">{slide.location}</p>
+              <a class="ml-btn hero__cta" href={slide.cta.href}>{slide.cta.label}</a>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+    <button class="hero__nav hero__nav--prev" data-prev type="button" aria-label="Previous slide">‹</button>
+    <button class="hero__nav hero__nav--next" data-next type="button" aria-label="Next slide">›</button>
+    <div class="hero__controls">
+      <button class="hero__playpause is-playing" data-toggle type="button" aria-label="Pause slideshow">
+        <span class="hero__playpause-icon" aria-hidden="true"></span>
+      </button>
+      <div class="hero__dots" data-dots role="group" aria-label="Choose slide to display"></div>
+    </div>
+  </section>
+
+  <section class="intro">
+    <h2 class="intro__title">{siteTagline}</h2>
+    <ul class="intro__cards">
+      {
+        introCards.map((card) => (
+          <li>
+            <a class="intro__card" href={card.href}>
+              <span class="intro__icon" aria-hidden="true">
+                <i class={card.icon}></i>
+              </span>
+              <span class="intro__label">{card.label}</span>
+              <span class="intro__cta" aria-hidden="true">
+                Explore
+                <i class="fa-solid fa-arrow-right intro__arrow"></i>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {
+    offers.length > 0 && (
+      <section class="grid-block offers">
+        <h2 class="grid-block__title">Special Offers</h2>
+        <OfferList offers={offers} hrefBase="/offers" />
+      </section>
+    )
+  }
+
+  <section class="grid-block">
+    <h2 class="grid-block__title">Browse Our Popular Departments</h2>
+    <ul class="card-grid card-grid--4">
+      {
+        departments.map((d) => (
+          <li>
+            <a class="tile" href="/departments">
+              <img class="tile__img" src={d.image} alt={d.alt} loading="lazy" decoding="async" />
+              <h3 class="tile__title">{d.title}</h3>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="grid-block__more">
+      <a class="ml-btn" href="/departments">View All Departments</a>
+    </div>
+  </section>
+
+  <section class="banner">
+    <img class="banner__img" src={banner.image} alt="" loading="lazy" decoding="async" />
+    <div class="banner__overlay">
+      <h2 class="banner__title">{banner.title}</h2>
+      <p class="banner__loc">{banner.location}</p>
+      <a class="ml-btn banner__cta" href={banner.cta.href}>{banner.cta.label}</a>
+    </div>
+  </section>
+
+  <section class="grid-block">
+    <h2 class="grid-block__title">Explore Ways We Can Lend a Helping Hand</h2>
+    <ul class="card-grid card-grid--2">
+      {
+        servicesCards.map((s) => (
+          <li>
+            <a class="tile" href="/services">
+              <img class="tile__img" src={s.image} alt={s.alt} loading="lazy" decoding="async" />
+              <h3 class="tile__title">{s.title}</h3>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="grid-block__more">
+      <a class="ml-btn" href="/services">View All Services</a>
+    </div>
+  </section>
+
+  {
+    reviews && (
+      <section class="grid-block">
+        <ElfSightGoogleReviews app={reviews} />
+      </section>
+    )
+  }
+
+  <section class="grid-block">
+    <h2 class="grid-block__title">Get in Touch</h2>
+    <div style="display:flex; justify-content:center">
+      <ContactForm apiBaseUrl={apiBaseUrl} host={host} turnstileSiteKey={turnstileSiteKey} />
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  const INTERVAL = 6000;
+
+  document.querySelectorAll<HTMLElement>("[data-carousel]").forEach((root) => {
+    const slides = Array.from(root.querySelectorAll<HTMLElement>("[data-slide]"));
+    if (slides.length < 2) return;
+
+    const live = root.querySelector<HTMLElement>("[data-live]");
+    const toggle = root.querySelector<HTMLButtonElement>("[data-toggle]");
+    const dotsWrap = root.querySelector<HTMLElement>("[data-dots]");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const dots = slides.map((_, i) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "hero__dot";
+      dot.setAttribute("aria-label", `Show slide ${i + 1} of ${slides.length}`);
+      dot.addEventListener("click", () => {
+        go(i);
+        pause();
+      });
+      dotsWrap?.appendChild(dot);
+      return dot;
+    });
+
+    let index = 0;
+    let timer: ReturnType<typeof setInterval> | undefined;
+    let userPaused = reduce;
+
+    function render() {
+      slides.forEach((s, i) => {
+        const active = i === index;
+        s.classList.toggle("is-active", active);
+        s.setAttribute("aria-hidden", active ? "false" : "true");
+        s.inert = !active;
+      });
+      dots.forEach((d, i) => {
+        const active = i === index;
+        d.classList.toggle("is-active", active);
+        if (active) d.setAttribute("aria-current", "true");
+        else d.removeAttribute("aria-current");
+      });
+    }
+
+    function go(n: number) {
+      index = (n + slides.length) % slides.length;
+      render();
+    }
+
+    function runTimer() {
+      if (timer) clearInterval(timer);
+      timer = setInterval(() => go(index + 1), INTERVAL);
+    }
+    function clearTimer() {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+    }
+
+    function resume() {
+      if (userPaused || reduce) return;
+      runTimer();
+      live?.setAttribute("aria-live", "off");
+    }
+    function suspend() {
+      clearTimer();
+      live?.setAttribute("aria-live", "polite");
+    }
+
+    function reflectToggle() {
+      const playing = !userPaused && !reduce;
+      toggle?.classList.toggle("is-playing", playing);
+      toggle?.setAttribute("aria-label", playing ? "Pause slideshow" : "Play slideshow");
+    }
+
+    function play() {
+      userPaused = false;
+      reflectToggle();
+      resume();
+    }
+    function pause() {
+      userPaused = true;
+      reflectToggle();
+      suspend();
+    }
+
+    toggle?.addEventListener("click", () => (userPaused ? play() : pause()));
+    root.querySelector("[data-prev]")?.addEventListener("click", () => {
+      go(index - 1);
+      pause();
+    });
+    root.querySelector("[data-next]")?.addEventListener("click", () => {
+      go(index + 1);
+      pause();
+    });
+
+    root.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        go(index - 1);
+        pause();
+      } else if (event.key === "ArrowRight") {
+        go(index + 1);
+        pause();
+      }
+    });
+
+    root.addEventListener("mouseenter", suspend);
+    root.addEventListener("mouseleave", resume);
+    root.addEventListener("focusin", suspend);
+    root.addEventListener("focusout", resume);
+
+    render();
+    reflectToggle();
+    if (!reduce) resume();
+  });
+</script>
+
+<style>
+  :global(html) {
+    overflow-x: clip;
+  }
+
+  .hero,
+  .banner {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    overflow: hidden;
+    background: var(--ml-color-surface-alt, #f3f4f6);
+  }
+
+  .hero {
+    margin-top: -20px;
+    margin-bottom: 48px;
+  }
+
+  .banner {
+    margin-top: 8px;
+    margin-bottom: 48px;
+  }
+
+  .hero__viewport {
+    position: relative;
+    height: clamp(280px, 42vw, 520px);
+  }
+
+  .hero__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+
+  .hero__slide.is-active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    padding: 24px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .hero__title {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: #fff;
+  }
+
+  .hero__loc {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .hero__cta {
+    margin-top: 8px;
+    color: #fff !important;
+  }
+
+  .hero__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    color: #111827;
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero__nav:hover {
+    background: #fff;
+  }
+
+  .hero__nav--prev {
+    left: 16px;
+  }
+
+  .hero__nav--next {
+    right: 16px;
+  }
+
+  .hero__controls {
+    position: absolute;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .hero__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .hero__dot {
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+  }
+
+  .hero__dot.is-active {
+    background: #fff;
+  }
+
+  .hero__playpause {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    color: #111827;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero__playpause:hover {
+    background: #fff;
+  }
+
+  .hero__playpause-icon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 0 7px 12px;
+    border-color: transparent transparent transparent currentColor;
+  }
+
+  .hero__playpause.is-playing .hero__playpause-icon {
+    width: 12px;
+    height: 12px;
+    border: none;
+    background:
+      linear-gradient(currentColor, currentColor) 0 0 / 4px 12px no-repeat,
+      linear-gradient(currentColor, currentColor) 8px 0 / 4px 12px no-repeat;
+  }
+
+  .hero__nav:focus-visible,
+  .hero__playpause:focus-visible,
+  .hero__dot:focus-visible,
+  .hero__cta:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__slide {
+      transition: none;
+    }
+  }
+
+  .intro {
+    max-width: 1080px;
+    margin: 0 auto 56px;
+    text-align: center;
+  }
+
+  .intro__title {
+    margin: 0 0 28px 0;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--ml-color-text, #111827);
+  }
+
+  .intro__cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .intro__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    min-height: 96px;
+    padding: 36px 24px 30px;
+    border-radius: 16px;
+    border: 1px solid var(--ml-color-border, #e5e7eb);
+    background: var(--ml-color-surface, #fff);
+    color: var(--ml-color-text, #111827);
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .intro__card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--bv-red-dark), var(--bv-red));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .intro__card:hover,
+  .intro__card:focus-visible {
+    transform: translateY(-6px);
+    border-color: var(--bv-red-dark);
+    box-shadow: 0 16px 32px -12px color-mix(in srgb, var(--bv-red-dark) 40%, transparent);
+    outline: none;
+  }
+
+  .intro__card:hover::before,
+  .intro__card:focus-visible::before {
+    transform: scaleX(1);
+  }
+
+  .intro__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--bv-red-dark), var(--bv-red));
+    color: #fff;
+    box-shadow: 0 8px 18px -6px color-mix(in srgb, var(--bv-red-dark) 60%, transparent);
+    font-size: 44px;
+    line-height: 1;
+    transition: transform 0.25s ease;
+  }
+
+  .intro__card:hover .intro__icon,
+  .intro__card:focus-visible .intro__icon {
+    transform: scale(1.06) rotate(-3deg);
+  }
+
+  .intro__label {
+    text-align: center;
+    font-size: 1.25rem;
+  }
+
+  .intro__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--ml-color-text-muted, #6b7280);
+    transition: color 0.25s ease;
+  }
+
+  .intro__card:hover .intro__cta,
+  .intro__card:focus-visible .intro__cta {
+    color: var(--bv-red);
+  }
+
+  .intro__arrow {
+    font-size: 0.8em;
+    transition: transform 0.25s ease;
+  }
+
+  .intro__card:hover .intro__arrow,
+  .intro__card:focus-visible .intro__arrow {
+    transform: translateX(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intro__card,
+    .intro__card::before,
+    .intro__icon,
+    .intro__cta,
+    .intro__arrow {
+      transition: none;
+    }
+
+    .intro__card:hover,
+    .intro__card:focus-visible {
+      transform: none;
+    }
+  }
+
+  .grid-block {
+    max-width: 1080px;
+    margin: 0 auto 56px;
+  }
+
+  .offers :global(.ml-grid) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .offers :global(.ml-card) {
+    flex: 0 1 340px;
+  }
+
+  .grid-block__title {
+    margin: 0 0 28px 0;
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--ml-color-text, #111827);
+  }
+
+  .grid-block__more {
+    margin-top: 28px;
+    text-align: center;
+  }
+
+  .card-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 24px;
+  }
+
+  .card-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .card-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tile {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .tile__img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--ml-radius, 12px);
+    background: var(--ml-color-surface-alt, #f3f4f6);
+    display: block;
+  }
+
+  .card-grid--2 .tile__img {
+    aspect-ratio: 8 / 5;
+  }
+
+  .tile__title {
+    margin: 12px 0 0 0;
+    text-align: center;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ml-color-text, #111827);
+  }
+
+  .banner__img {
+    width: 100%;
+    height: clamp(240px, 38vw, 460px);
+    object-fit: cover;
+    display: block;
+  }
+
+  .banner__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    padding: 24px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .banner__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    max-width: 18ch;
+    color: #fff;
+  }
+
+  .banner__loc {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .banner__cta {
+    margin-top: 8px;
+    color: #fff !important;
+  }
+
+  @media (max-width: 900px) {
+    .card-grid--4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .intro__cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,4 @@
+# Cloudflare-native local env, read via `import { env } from "cloudflare:workers"`.
+# Copy to `.dev.vars` for `astro dev`. (You can also use .env or shell exports.)
+MIGHTY_API_BASE_URL=https://app.mightylocal.example.com
+MIGHTY_SITE_HOST=daubyshardware.com
