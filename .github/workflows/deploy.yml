@@ -1,0 +1,43 @@
+name: Deploy Astro site Worker
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Build and deploy
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      # The three @mightylocalsites framework packages install from GitHub
+      # Packages (see .npmrc, which reads ${NODE_AUTH_TOKEN}). Without this token
+      # `npm ci` can't resolve them and the build fails.
+      - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+      - run: npm run build
+
+      # Upload the built Worker into the Workers for Platforms dispatch namespace.
+      # The namespace is selected with the --dispatch-namespace deploy flag (it is
+      # NOT a wrangler.jsonc field). `wrangler deploy` follows the
+      # .wrangler/deploy/config.json redirect to the adapter-generated
+      # dist/server/wrangler.json. CF_WFP_DEPLOY_KEY needs Workers Scripts: Edit +
+      # Workers for Platforms permissions; the `production-sites` namespace must
+      # already exist.
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_WFP_DEPLOY_KEY }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.101.0"
+          command: deploy --dispatch-namespace production-sites
