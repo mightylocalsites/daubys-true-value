@@ -37,8 +37,8 @@ const businessLd = primary
   ? localBusinessJsonLd(primary, owner, canonical)
   : null;
 
-const locationLabel = primary?.city && primary?.state
-  ? `${primary.city}, ${primary.state}`
+const locationLabel = primary?.locality && primary?.administrative_area
+  ? `${primary.locality}, ${primary.administrative_area}`
   : "Tell City, IN";
 
 const slides = [
