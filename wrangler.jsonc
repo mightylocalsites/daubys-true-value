@@ -19,5 +19,5 @@
   // Env vars (MIGHTY_API_BASE_URL, MIGHTY_SITE_HOST) are set as Worker vars in
   // the dashboard / via `wrangler` (prod) and `.dev.vars` (dev) — not declared
   // here so an empty default can't shadow them. Run `npm run typegen` after
-  // adding any KV/other bindings.
+  // adding any KV/other bindings./
 }
