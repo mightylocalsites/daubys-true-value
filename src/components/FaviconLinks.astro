@@ -1,7 +1,8 @@
 ---
+import { cfImage } from "@mightylocalsites/astro-data";
 /** Favicon links for `<head>` — pass to SiteLayout via `slot="head"`. */
+const favicon = cfImage("daubys-true-value/favicon.png");
 ---
 <meta name="theme-color" content="#a00c24" />
-<link rel="icon" type="image/png" href="/favicon.png" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<link rel="apple-touch-icon" href="/favicon.png" />
+<link rel="icon" type="image/png" href={favicon} />
+<link rel="apple-touch-icon" href={favicon} />

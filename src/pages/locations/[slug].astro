@@ -2,7 +2,6 @@
 import SiteLayout from "../../layouts/SiteLayout.astro";
 import { LocationDetail } from "@mightylocalsites/ui";
 import FaviconLinks from "../../components/FaviconLinks.astro";
-import InteriorHero from "../../components/InteriorHero.astro";
 import {
   localBusinessJsonLd,
   breadcrumbJsonLd,
@@ -11,7 +10,7 @@ import {
 } from "@mightylocalsites/astro-data";
 import { getSiteChrome, getLocationSafe, applyCache } from "../../lib/site-chrome";
 import { resolveTimezone } from "../../data/site";
-import { imageAlt, images, locationsHref, withShopifyLogo } from "../../data/images";
+import { images, locationsHref, withShopifyLogo } from "../../data/images";
 import { pageCanonical } from "../../lib/seo";
 import "../../styles/site.css";
 
@@ -41,12 +40,6 @@ const crumbsLd = location
       { name: location.name, url: canonical },
     ])
   : null;
-
-const heroImage = location?.image?.src ?? images.heroWelcome;
-const heroAlt = location?.image?.alt ?? imageAlt.heroWelcome;
-const locationLabel = location?.locality && location?.administrative_area
-  ? `${location.locality}, ${location.administrative_area}`
-  : "Tell City, IN";
 ---
 
 {
@@ -66,15 +59,7 @@ const locationLabel = location?.locality && location?.administrative_area
         <script type="application/ld+json" is:inline set:html={jsonLdToString(crumbsLd!)} />
       </Fragment>
 
-      <InteriorHero
-        image={heroImage}
-        alt={heroAlt}
-        title={location.name}
-        location={locationLabel}
-        cta={{ label: "Contact Us", href: "/contact" }}
-      />
-
-      <div class="page-flow page-flow--flush">
+      <div class="page-flow">
         <LocationDetail
           location={location}
           timezone={resolveTimezone(owner.timezone)}
@@ -103,9 +88,3 @@ const locationLabel = location?.locality && location?.administrative_area
     </SiteLayout>
   )
 }
-
-<style>
-  :global(html) {
-    overflow-x: clip;
-  }
-</style>

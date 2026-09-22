@@ -1,15 +1,13 @@
 ---
 /**
- * Contact — Stoppel-style hero, quick links, map, and contact form.
+ * Contact — quick links, map, and contact form.
  */
 import SiteLayout from "../layouts/SiteLayout.astro";
 import { ContactForm } from "@mightylocalsites/ui";
 import FaviconLinks from "../components/FaviconLinks.astro";
-import InteriorHero from "../components/InteriorHero.astro";
 import { getSiteChrome, getSiteConfig } from "../lib/site-chrome";
-import { fullAddress, mapsHref, telHref, formatHoursRows } from "@mightylocalsites/astro-data";
-import { resolveTimezone } from "../data/site";
-import { imageAlt, images, locationsHref, withShopifyLogo } from "../data/images";
+import { fullAddress, mapsHref, telHref } from "@mightylocalsites/astro-data";
+import { images, locationsHref, withShopifyLogo } from "../data/images";
 import { DEFAULT_OG_IMAGE, pageCanonical } from "../lib/seo";
 import "../styles/site.css";
 
@@ -25,16 +23,6 @@ const directionsHref = mapsHref(address);
 const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
 const phone = primary?.phone ?? "(812) 547-2566";
 const email = primary?.email ?? "daubyhwde@gmail.com";
-const hoursRows = primary
-  ? formatHoursRows(
-      primary.business_hours,
-      primary.special_hours,
-      resolveTimezone(owner.timezone),
-    )
-  : [];
-const locationLabel = primary?.locality && primary?.administrative_area
-  ? `${primary.locality}, ${primary.administrative_area}`
-  : "Tell City, IN";
 ---
 
 <SiteLayout
@@ -48,14 +36,16 @@ const locationLabel = primary?.locality && primary?.administrative_area
 >
   <FaviconLinks slot="head" />
 
-  <InteriorHero
-    image={images.heroWelcome}
-    alt={imageAlt.heroWelcome}
-    title="Contact Us"
-    location={locationLabel}
-  />
+  <div class="page-flow">
+    <header class="page-hero">
+      <p class="page-hero__eyebrow">Get in touch</p>
+      <h1>Contact Us</h1>
+      <p>
+        Have a question, need a quote, or want help finding the right supplies?
+        Send a message and our team will get back to you.
+      </p>
+    </header>
 
-  <div class="page-flow page-flow--flush">
     <ul class="contact__quick">
       <li>
         <a href={directionsHref} target="_blank" rel="noopener">
@@ -85,33 +75,8 @@ const locationLabel = primary?.locality && primary?.administrative_area
       </div>
 
       <div class="contact__panel">
-        {
-          hoursRows.length > 0 && (
-            <div class="contact__hours">
-              <h2 class="contact__subhead">Store hours</h2>
-              <table class="hours">
-                <tbody>
-                  {
-                    hoursRows.map((row) => (
-                      <tr class={row.isToday ? "is-today" : undefined}>
-                        <th scope="row">{row.day}</th>
-                        <td>{row.displayHours}</td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-            </div>
-          )
-        }
         <ContactForm apiBaseUrl={apiBaseUrl} host={host} turnstileSiteKey={turnstileSiteKey} />
       </div>
     </div>
   </div>
 </SiteLayout>
-
-<style>
-  :global(html) {
-    overflow-x: clip;
-  }
-</style>

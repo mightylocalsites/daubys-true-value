@@ -1,9 +1,5 @@
+import { cfImage } from "@mightylocalsites/astro-data";
 import { defineMiddleware } from "astro:middleware";
-
-const FAVICON_TAGS = `<meta name="theme-color" content="#a00c24" />
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="/favicon.png" />`;
 
 /** Inject favicon links into every HTML response (framework + override pages). */
 export const onRequest = defineMiddleware(async (_context, next) => {
@@ -21,5 +17,10 @@ export const onRequest = defineMiddleware(async (_context, next) => {
     return new Response(html, responseInit);
   }
 
-  return new Response(html.replace("</head>", `${FAVICON_TAGS}</head>`), responseInit);
+  const favicon = cfImage("daubys-true-value/favicon.png");
+  const faviconTags = `<meta name="theme-color" content="#a00c24" />
+<link rel="icon" href="${favicon}" type="image/png" />
+<link rel="apple-touch-icon" href="${favicon}" />`;
+
+  return new Response(html.replace("</head>", `${faviconTags}</head>`), responseInit);
 });

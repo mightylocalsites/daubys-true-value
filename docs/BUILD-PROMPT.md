@@ -1,39 +1,105 @@
-# Custom site build prompt (Stoppel homepage + branded chrome)
+# MightyLocal custom site — master build prompt
 
-Copy-paste master prompt for building a full custom marketing site from a live
-Shopify client site, using the Stoppel Supply homepage layout and ac-hall / bville
-infrastructure patterns.
+Copy the prompt block below into a new chat to build a full custom marketing site
+like **daubys-true-value**. Replace every `{PLACEHOLDER}` before sending.
 
-Replace `{CLIENT}`, `{HOST}`, `{SLUG}`, `{CITY}`, `{STATE}`, and `{LOCATION_SLUG}`
-before running.
+**Reference sites in this monorepo:**
+
+| Role | Repo folder |
+|---|---|
+| Homepage layout (carousel, tiles, banner) | `stoppel-supply-ks` |
+| Icon grids + local chrome infrastructure | `ac-hall-hardware-wallace-nc` |
+| Framework page overrides (no hero images) | `bville-supply-baldwinsville-ny` |
+| Completed example of this prompt | `daubys-true-value` |
 
 ---
 
+## Prompt (copy from here)
+
 ```
-Build the complete custom marketing site for {CLIENT} using the Stoppel Supply
-homepage template and copy from the live client site.
+Build the complete custom marketing site for {CLIENT_NAME} from the live client
+site and MightyLocal scaffold.
 
 Live client site (content source): https://{HOST}/
-Design/layout template: stoppel-supply-ks (homepage + interior page heroes)
+MightyLocal site slug / Worker name: {SLUG}
+Target repo folder: {SLUG}
+
+Design/layout template: stoppel-supply-ks (homepage only)
 Interior content pattern: ac-hall-hardware-wallace-nc (icon-led grids — NOT alternating image rows)
-Framework page pattern: bville-supply-baldwinsville-ny (local SiteLayout overrides for offers, events, locations, contact)
-Site infrastructure pattern: ac-hall-hardware-wallace-nc (local SiteLayout, content.ts, images.ts, site.css, brand.css, FaviconLinks, lib/seo.ts, lib/site-chrome.ts)
-Target site: {SLUG}
+Framework page pattern: bville-supply-baldwinsville-ny (local SiteLayout, text-only page headers)
+Completed reference: daubys-true-value (same stack — read it for file patterns)
+
+---
+
+## Business facts (from live site + MightyLocal)
+
+Fill these in before building:
+
+- Name: {CLIENT_NAME}
+- Address: {STREET}, {CITY}, {STATE} {ZIP}
+- Phone: {PHONE}
+- Email: {EMAIL}
+- City label for heroes: {CITY}, {STATE}
+- Location slug (from API/MightyLocal): {LOCATION_SLUG}
+- Brand primary color: {BRAND_HEX} (e.g. #a00c24 for True Value red)
+- Pre-header announcement (if any): {PREHEADER_TEXT or "none"}
+- Homepage tagline: {TAGLINE from live site}
+
+---
+
+## Current state (read before changing anything)
+
+The repo is scaffolded from example-site. Expect Stoppel/template placeholders
+(Russell KS copy, amber brand, generic favicon, framework SiteLayout on some routes).
+
+Before editing:
+1. Read what already exists in `src/pages/`, `src/layouts/`, `src/components/`, `src/data/`
+2. Do not rebuild working pages from scratch unless something is wrong
+3. Use `primary.locality` + `primary.administrative_area` for city/state labels
+   (NOT `city` / `state` on the Location type)
 
 ---
 
 ## Goal
 
-Replace ALL template-specific content while preserving Stoppel's homepage layout and
-interior-page hero banners. Interior custom page body sections use Font Awesome
-icons — not photography. Framework routes get branded overrides so every page
-matches the site's header, footer, pre-header, and hero style.
+Deliver a fully branded site where:
+
+- **Homepage** matches Stoppel's image-heavy layout with this client's copy
+- **Custom pages** (departments, services, about-us) use ONE hero image each +
+  icon-led body content (no alternating photo rows)
+- **Framework pages** (contact, offers, events, locations) use local SiteLayout
+  and text-only headers — **no hero images**
+- Every page shares the same header, pre-header, footer, fonts, and brand color
+- No template/Stoppel placeholder copy or images remain
+
+---
+
+## Site chrome (copy from ac-hall / daubys)
+
+Local overrides required:
+
+```
+src/layouts/SiteLayout.astro
+src/components/Header.astro
+src/components/PreHeader.astro
+src/components/Footer.astro
+src/components/FaviconLinks.astro
+src/components/InteriorHero.astro      ← shared full-bleed hero for custom pages only
+src/lib/site-chrome.ts                 ← getSiteChrome, getLocationSafe
+src/lib/seo.ts
+src/styles/brand.css                   ← --ml-color-primary + hero scrim tokens
+src/styles/site.css                    ← icon grids, contact layout, shared hero styles
+src/middleware.ts                      ← favicon injection for framework routes
+```
+
+Every custom and override page imports local `SiteLayout`, not
+`@mightylocalsites/ui` SiteLayout directly.
 
 ---
 
 ## Footer (required)
 
-Set `footerNav` in astro.config.mjs to match the live site legal links:
+In `astro.config.mjs`:
 
 ```js
 footerNav: [
@@ -43,37 +109,51 @@ footerNav: [
 ],
 ```
 
-- `/accessibility-statement` — framework route (override only if it looks off-brand)
-- `/privacy-policy` and `/terms-of-service` — create override pages; carry HTML from
-  `https://{HOST}/policies/privacy-policy` and `https://{HOST}/policies/terms-of-service`
-  into `src/data/privacy-policy.ts` and `src/data/terms-of-service.ts`
-  (see chatsworth-hardware pattern)
-- Local `Footer.astro` renders `footerNav` from chrome — no hardcoded footer links
+- `/privacy-policy` and `/terms-of-service` — override pages; HTML from
+  `https://{HOST}/policies/privacy-policy` and `…/terms-of-service` into
+  `src/data/privacy-policy.ts` and `src/data/terms-of-service.ts`
+  (see chatsworth-hardware or daubys-true-value)
+- `/accessibility-statement` — framework route (override only if off-brand)
+- Footer reads `footerNav` from chrome — no hardcoded legal links in components
+
+Nav order should match live site, typically:
+Departments, Services, Offers, Events, About Us, Location, Contact
+
+Fix Location nav href: `/locations/{LOCATION_SLUG}`
 
 ---
 
-## Page layout rules
+## Page-by-page scope
 
 ### Homepage — `src/pages/index.astro` (Stoppel structure, image-heavy)
 
-1. Full-bleed hero carousel (2 slides)
-2. Intro link row (Departments, Services, Location & Hours)
-3. Special Offers via OfferList
-4. Featured departments grid — 4 square **image** tiles
-5. Full-bleed banner (e.g. Paint Matching & Mixing)
-6. Services grid — 2 square **image** tiles
-7. Optional ElfSight reviews
-8. Centered ContactForm
+Match `stoppel-supply-ks/src/pages/index.astro`:
 
-Homepage is the ONLY page that uses multiple marketing photos beyond heroes.
+1. Full-bleed hero carousel (2 slides, white overlay text)
+2. Intro link row: Departments, Services, Location & Hours
+3. Special Offers via `OfferList` + `getSiteContentSafe(["offers"])`
+4. Featured departments — 4 square **image** tiles (homepage subset)
+5. Full-bleed marketing banner with CTA
+6. Services — 2 square **image** tiles (homepage subset)
+7. Optional ElfSight reviews (if configured)
+8. Centered `ContactForm`
 
-### Interior custom pages — hero image + icon grid (NOT image rows)
+Rules:
+- Homepage is the ONLY page with multiple marketing photos beyond single heroes
+- Hero/banner overlay text explicitly `#fff`
+- Brand accents use `--ml-color-primary` / site CSS vars, not Stoppel amber
+- No duplicate images within the same page
+- `withShopifyLogo`, `FaviconLinks`, `pageCanonical`, `DEFAULT_OG_IMAGE`
 
-**Departments, Services, About Us** each get:
-- ONE full-bleed hero banner (Stoppel-style overlay: title, city/state, Contact CTA)
-- Body content below uses **icon-led cards/grids** — no alternating photo rows
+---
 
-Pattern (see ac-hall `departments.astro` / `services.astro`):
+### Departments — `src/pages/departments.astro`
+
+- ONE full-bleed hero (`InteriorHero` or shared hero classes): title "Departments",
+  `{CITY}, {STATE}`, Contact Us CTA
+- Intro paragraph from `content.ts`
+- **Icon grid** for every department — NOT alternating image rows
+
 ```astro
 <ul class="dept-grid dept-grid--page">
   {departments.map((d) => (
@@ -82,151 +162,194 @@ Pattern (see ac-hall `departments.astro` / `services.astro`):
       <div>
         <h2>{d.title}</h2>
         <p>{d.body}</p>
-        {d.bullets && <ul>...</ul>}
+        {d.bullets && <ul class="dept-bullets">…</ul>}
       </div>
     </li>
   ))}
 </ul>
 ```
 
-- Assign a semantic Font Awesome icon per department/service in `content.ts`
-- Electrical bullet lists render as `<ul class="dept-bullets">`
-- End with a CTA band (Contact + phone)
-- Extract shared hero markup into `src/components/InteriorHero.astro`
-
-**About Us** — hero + single icon intro card. Do NOT invent company history if the
-live site has none — ask for copy first.
-
-### Framework pages — override with local SiteLayout (required)
-
-Override these routes so they match the rest of the site (see bville pattern):
-
-| Route | Design |
-|---|---|
-| `/contact` | InteriorHero + quick links (address/phone/email) + map/form split |
-| `/offers` | InteriorHero + branded intro + `OfferList` |
-| `/offers/[slug]` | Branded `OfferDetail` in `page-flow` |
-| `/events` | InteriorHero + branded intro + `EventList` |
-| `/events/[slug]` | Branded `EventDetail` + JSON-LD |
-| `/locations` | Redirect to single store when only one location |
-| `/locations/[slug]` | InteriorHero + `LocationDetail` + JSON-LD |
-
-Each override page uses:
-- Local `SiteLayout` (not framework `@mightylocalsites/ui` SiteLayout directly)
-- `getSiteChrome` / `withShopifyLogo`
-- `FaviconLinks slot="head"`
-- `src/styles/site.css`
-
-**Restart `npm run dev` after adding framework override pages** — Astro picks them
-up on restart.
+- CTA band at bottom (Contact + phone)
+- Copy verbatim from live site
 
 ---
 
-## Shared infrastructure
+### Services — `src/pages/services.astro`
+
+Same pattern as departments: hero + icon grid (`svc-grid svc-grid--page`) + CTA band.
+
+---
+
+### About Us — `src/pages/about-us.astro`
+
+- ONE full-bleed hero
+- Single icon-led intro card below — no story photo row
+
+⚠️ If the live About page has no body copy, **STOP and ask** — do not invent history.
+
+---
+
+### Framework pages — override with local SiteLayout (required)
+
+**No hero images.** Text-only `page-hero` header inside `page-flow`, then the
+framework component. See bville-supply-baldwinsville-ny.
+
+| Route | Design |
+|---|---|
+| `/contact` | `page-hero` + quick links (address/phone/email) + map/form split. **No store hours in the form panel.** |
+| `/offers` | `page-hero` + `OfferList` |
+| `/offers/[slug]` | `OfferDetail` in `page-flow` |
+| `/events` | `page-hero` + `EventList` |
+| `/events/[slug]` | `EventDetail` + JSON-LD |
+| `/locations` | Redirect to single store slug when only one location |
+| `/locations/[slug]` | `LocationDetail` + JSON-LD (no hero) |
+
+Each override uses: local `SiteLayout`, `getSiteChrome`, `withShopifyLogo`,
+`FaviconLinks slot="head"`, `src/styles/site.css`.
+
+**Restart `npm run dev` after adding override pages.**
+
+---
+
+## Shared data files
 
 ### `src/data/content.ts`
-- All static copy from live site
-- Each department/service: `{ icon, title, body, bullets? }`
-- Homepage-only images: optional `homepageImage` key on items featured on `/`
+- `siteTagline`, `departmentsIntro`, `servicesIntro`, `aboutIntro`
+- Full `departments[]` and `services[]`: `{ icon, title, body, bullets? }`
+- Homepage subsets: `homeDepartments`, `homeServices` with optional `homepageImage`
 
 ### `src/data/images.ts`
-- Logo from Shopify CDN (`https://{HOST}/cdn/shop/files/…`)
-- Hero images only: homepage carousel, homepage banner, deptHero, svcHero, aboutHero
-- Do NOT assign row images for interior department/service sections
-- If local `*.png` is gitignored, use Shopify CDN URLs until `npx mighty-migrate-images`
+- Logo + alt text map from Shopify CDN: `https://{HOST}/cdn/shop/files/…`
+- Heroes only: carousel slides, homepage banner, `deptHero`, `svcHero`, `aboutHero`
+- Homepage tile images on subset items — interior pages do NOT use row images
+- `locationSlug`, `locationsHref`, `withShopifyLogo()` helper
+- Local `*.png` is gitignored — use CDN until `npx mighty-migrate-images`
 
 ### `src/data/site.ts`
-- Tell City / client fallback location when API data is sparse
-- `patchSiteData`, `patchLocation`, `resolveTimezone` helpers
-- `getLocationSafe` in `lib/site-chrome.ts` for location detail pages
+- Fallback location when API data is sparse
+- `patchSiteData`, `patchLocation`, `resolveTimezone`
+- `getLocationSafe()` in `lib/site-chrome.ts`
+
+---
+
+## Brand + interior hero overlay
 
 ### `src/styles/brand.css`
-- Client brand primary color (e.g. True Value red `#a00c24`)
-- NOT Stoppel amber
 
-### `astro.config.mjs`
-- Fix Location nav href to `/locations/{LOCATION_SLUG}` from MightyLocal/API
-- Full footerNav (Privacy, Terms, Accessibility)
+```css
+:root:root {
+  --ml-color-primary: {BRAND_HEX};
+  --ml-color-primary-contrast: #ffffff;
+
+  /* Black scrim — accessible white text over busy photos (WCAG AA) */
+  --interior-hero-scrim: linear-gradient(
+    145deg,
+    rgb(0 0 0 / 0.72) 0%,
+    rgb(0 0 0 / 0.52) 48%,
+    rgb(0 0 0 / 0.68) 100%
+  );
+  --interior-hero-text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+```
+
+Apply via shared classes in `site.css` on custom-page hero overlays only
+(`.interior-hero__overlay`, `.dept-hero__overlay`, etc.). White title/location
+text with `text-shadow`.
 
 ---
 
 ## Favicon (required)
 
-The scaffold ships a generic Stoppel `public/favicon.svg` — replace it.
+Scaffold ships a generic Stoppel `public/favicon.svg` — replace it.
 
-1. Download `Favicon.png` from `https://{HOST}/cdn/shop/files/Favicon.png` → `public/favicon.png`
-2. Create a branded `public/favicon.svg` (brand color + simple mark)
-3. `src/components/FaviconLinks.astro` — local assets + theme color from brand:
+1. Download `Favicon.png` from `https://{HOST}/cdn/shop/files/Favicon.png`
+   → `public/favicon.png` (gitignored PNG exception: `!public/favicon.*`)
+2. Branded `public/favicon.svg` (simple mark in brand color)
+3. `FaviconLinks.astro`:
    ```astro
-   <meta name="theme-color" content="#a00c24" />
+   <meta name="theme-color" content="{BRAND_HEX}" />
    <link rel="icon" type="image/png" href="/favicon.png" />
    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
    <link rel="apple-touch-icon" href="/favicon.png" />
    ```
-4. `src/middleware.ts` — inject the same favicon tags on framework pages that lack
-   `FaviconLinks`; skip injection when `rel="icon"` is already present
-
-Add `FaviconLinks slot="head"` to every custom and framework override page.
-
----
-
-## Local dev / preview
-
-### `.dev.vars` (critical)
-Copy `.dev.vars.example` → `.dev.vars` and set:
-```
-MIGHTY_API_BASE_URL=https://mlapi.newmediaretailer.com
-MIGHTY_SITE_HOST={HOST}
-```
-
-If `MIGHTY_SITE_HOST` points at the wrong domain, API data (JSON-LD, offers,
-events, location) will show another client's content in dev.
-
-### Verify locally
-```bash
-npm run typecheck   # 0 errors
-npm run build       # succeeds
-npm run dev         # http://localhost:4321 — restart after new override pages
-```
-
-### Deploy for preview
-- Pin SESSION KV id from MightyLocal CMS in `wrangler.jsonc`
-- Ship `.github/workflows/deploy.yml` (push to `master` deploys via Workers for Platforms)
-- Push to `mightylocalsites/{SLUG}` — CI builds and deploys automatically
-- Manual fallback: `npm run build && npx wrangler deploy --dispatch-namespace production-sites`
+4. `middleware.ts` — inject same tags on framework pages missing `rel="icon"`
 
 ---
 
 ## Image inventory (minimum)
 
-**Homepage:** heroWelcome, heroDepartments, deptPaint, deptElectrical, deptPlumbing,
-deptTools, bannerPaintMatching, serviceLockRekeying, serviceSpecialOrdering
+**Homepage:** heroWelcome, heroDepartments, 4 dept tiles, banner, 2 service tiles
 
 **Interior heroes only:** deptHero, svcHero, aboutHero
 
-If a required image is missing, STOP and ask — do not use mismatched placeholders.
+If any required image is missing, **STOP and list what's needed** — no mismatched
+placeholders, no duplicates on the same page.
 
 ---
 
-## Technical rules
+## Local dev + deploy
 
-- Local `SiteLayout`, `getSiteChrome`, `withShopifyLogo`, `FaviconLinks`
-- Location labels: `primary.locality` + `primary.administrative_area` (NOT `city`/`state`)
-- Fallback city label: `{CITY}, {STATE}`
-- No Stoppel cfImage paths or template placeholder copy
-- Hero overlay text explicitly white (#fff)
-- Brand accents use site CSS vars, not Stoppel amber
+### `.dev.vars` (critical)
+```
+MIGHTY_API_BASE_URL=https://mlapi.newmediaretailer.com
+MIGHTY_SITE_HOST={HOST}
+```
+Wrong host = wrong API data in dev (another client's offers, JSON-LD, etc.).
+
+### Verify
+```bash
+npm run typecheck   # 0 errors
+npm run build       # succeeds; framework routes logged as overridden
+npm run dev         # http://localhost:4321
+```
+
+### Deploy
+- Pin SESSION KV id from MightyLocal CMS in `wrangler.jsonc`
+- Ship `.github/workflows/deploy.yml` (push to `master` → Workers for Platforms)
+- Push to `mightylocalsites/{SLUG}`
+- Manual: `npm run build && npx wrangler deploy --dispatch-namespace production-sites`
+
+---
+
+## Do NOT
+
+- Use alternating image/text rows on departments or services (icons only)
+- Put hero images on contact, offers, events, or locations
+- Show store hours in the contact form panel
+- Invent About Us history when live site has none
+- Use Stoppel cfImage paths, Russell KS copy, or template amber brand
+- Use `primary.city` / `primary.state` (use `locality` / `administrative_area`)
+- Commit `.dev.vars`, `node_modules`, `dist`, or local marketing PNGs
 
 ---
 
 ## Verification checklist
 
-1. `npm run typecheck` — 0 errors
-2. `npm run build` — succeeds; Astro logs framework routes as overridden
-3. Audit: no Stoppel/template references in copy or images
-4. Interior pages use icons, not row photos
-5. Footer shows Privacy Policy, Terms of Service, Accessibility Statement
-6. Framework pages (contact, offers, events, locations) use branded SiteLayout + heroes
-7. Favicon shows client brand on all routes (including /accessibility-statement via middleware)
-8. `.dev.vars` `MIGHTY_SITE_HOST` matches `{HOST}`
+- [ ] `npm run typecheck` — 0 errors
+- [ ] `npm run build` — succeeds
+- [ ] No Stoppel/template references in copy or images
+- [ ] Homepage: Stoppel layout + client copy + image tiles
+- [ ] Departments / Services / About: hero + icon grids (no row photos)
+- [ ] Contact / Offers / Events / Locations: branded chrome, **no hero images**
+- [ ] Contact form panel has no store hours
+- [ ] Footer: Privacy Policy, Terms of Service, Accessibility Statement
+- [ ] Favicon + theme-color on all routes
+- [ ] Interior hero overlays use black gradient scrim + white text
+- [ ] `.dev.vars` `MIGHTY_SITE_HOST` = `{HOST}`
+- [ ] Location nav → `/locations/{LOCATION_SLUG}`
 ```
+
+---
+
+## Quick-fill example (Dauby's True Value)
+
+| Placeholder | Value |
+|---|---|
+| `{CLIENT_NAME}` | Dauby's True Value Hardware |
+| `{HOST}` | daubyshardware.com |
+| `{SLUG}` | daubys-true-value |
+| `{LOCATION_SLUG}` | daubys-true-value-hardware |
+| `{CITY}` / `{STATE}` | Tell City / IN |
+| `{BRAND_HEX}` | #a00c24 |
+| `{PHONE}` | (812) 547-2566 |
+| `{EMAIL}` | daubyhwde@gmail.com |

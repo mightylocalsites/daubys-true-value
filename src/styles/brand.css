@@ -15,4 +15,16 @@
 :root:root {
   --ml-color-primary: #a00c24;
   --ml-color-primary-contrast: #ffffff;
+
+  /*
+   * Interior hero scrim — black gradient dark enough for white text over busy
+   * photos (WCAG AA). Pair with --interior-hero-text-shadow on titles.
+   */
+  --interior-hero-scrim: linear-gradient(
+    145deg,
+    rgb(0 0 0 / 0.72) 0%,
+    rgb(0 0 0 / 0.52) 48%,
+    rgb(0 0 0 / 0.68) 100%
+  );
+  --interior-hero-text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }

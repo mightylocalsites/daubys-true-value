@@ -1,33 +1,41 @@
 /**
- * Site photography — Shopify CDN URLs from daubyshardware.com.
- * Local copies are gitignored; run `npx mighty-migrate-images` to move to R2 later.
+ * Site photography for Dauby's True Value Hardware.
+ * Marketing images live in /public/images (deploy with static assets).
+ * Logo uses Shopify CDN; run `npx mighty-migrate-images` to move to R2 later.
  */
 const shop = (file: string, width?: number) =>
   width
     ? `https://daubyshardware.com/cdn/shop/files/${file}?width=${width}`
     : `https://daubyshardware.com/cdn/shop/files/${file}`;
 
+const img = (file: string) => `/images/${file}`;
+
 /** Shared alt text for photography used across the site. */
 export const imageAlt = {
-  heroWelcome: "Dauby's True Value Hardware store front on a clear day.",
-  heroDepartments: "A chair being painted by a white paint brush in a garage.",
-  deptHero: "Hardware and supplies at Dauby's True Value Hardware.",
-  deptHardware: "Hardware products and tools at Dauby's True Value Hardware.",
-  deptPaint: "Paint swatches and supplies inside of Dauby's True Value Hardware.",
-  deptElectrical: "Electrical supplies on shelves inside of Dauby's True Value Hardware.",
-  deptPlumbing: "Plumbing supplies on shelves inside of Dauby's True Value Hardware.",
-  deptTools: "Tools and supplies on shelves inside of Dauby's True Value Hardware.",
-  deptSportingGoods: "Sporting goods and outdoor equipment at Dauby's True Value Hardware.",
-  deptSeasonalHoliday: "Seasonal and holiday merchandise at Dauby's True Value Hardware.",
-  bannerPaintMatching: "Paint mixing and color matching supplies at Dauby's True Value Hardware.",
-  svcHero: "Quotes and estimates at Dauby's True Value Hardware.",
-  svcQuotes: "Planning a home renovation project with Dauby's True Value Hardware.",
-  svcKeyCutting: "Key cutting service at Dauby's True Value Hardware.",
-  svcLockRekeying: "Keys on a door lock.",
-  svcPaintMatching: "Paint matching and mixing at Dauby's True Value Hardware.",
-  svcSpecialOrdering: "A close-up of a pen writing on a notebook.",
-  aboutHero: "Dauby's True Value Hardware in Tell City, Indiana.",
-  aboutStory: "Inside Dauby's True Value Hardware in Tell City, Indiana.",
+  heroWelcome:
+    "Exterior of a True Value hardware store with a green roof, red sign, storefront windows, carts, and an empty parking lot in daylight.",
+  heroDepartments:
+    "Person painting in a workshop beside an A-frame ladder, with a rolling tool cabinet, supplies, and bright window creating an industrious mood.",
+  aboutHero:
+    "A paint roller applies fresh white paint to a wall, creating a clean, minimalist surface in a calm, neutral setting.",
+  bannerPaintMatching:
+    "A bright room ready for painting, with a wooden ladder, covered floor, paint can, brushes, trays, blue tape, and protective plastic sheeting.",
+  deptHero:
+    "Close-up of red organizer bins filled with shiny metal tools and hardware, including sockets, clamps, rods, and a black-handled tool.",
+  deptPaint:
+    "Paint store display featuring hundreds of colorful paint swatches in organized panels, creating a bright, orderly showroom scene.",
+  deptElectrical:
+    "Hardware store aisle packed with cables, adapters, electronics, tools, and accessories on pegboards, creating a busy, well-organized retail scene.",
+  deptPlumbing:
+    "Hardware store aisle displaying rows of plumbing supplies—pipes, valves, fittings, hoses, and tools—organized on pegboard shelves.",
+  deptTools:
+    "Hardware store aisle displaying pegboards packed with saw blades, drill accessories, filters, regulators, tools, and automotive supplies.",
+  svcHero:
+    "Close-up of an architect's hand using a black pen to draw detailed building blueprints on white paper, conveying precision and focus.",
+  svcLockRekeying:
+    "Close-up of a metal key in a door lock, with a blurred green outdoor background, symbolizing access, security, and new opportunity.",
+  svcSpecialOrdering:
+    "Close-up of a hand holding a black-and-silver pen, writing in a lined spiral notebook on a desk in an office; focused, productive mood.",
 } as const;
 
 export type MarketingImageKey = keyof typeof imageAlt;
@@ -37,33 +45,26 @@ export const images = {
   favicon: shop("Favicon.png"),
 
   /** Homepage carousel. */
-  heroWelcome: shop("Store_1800x800px_Shopify_cbed1a03-5622-4ef7-a16f-1efd3def4313.png", 1920),
-  heroDepartments: shop("Store_1800x800px_Shopify_7e52e281-e262-4e30-baeb-5e2b51fd6ada.png", 1920),
+  heroWelcome: img("hero-welcome.png"),
+  heroDepartments: img("hero-departments.png"),
 
-  /** Departments page hero + rows. */
-  deptHero: shop("Hero_Hardware.png", 1920),
-  deptHardware: shop("Store_500x300px_Shopify_03196c42-d392-49f8-8d6c-6e1179d94431.png", 800),
-  deptPaint: shop("Untitled_design_-_2023-12-06T092301.304.png", 800),
-  deptElectrical: shop("Untitled_design_-_2023-12-06T091058.756.png", 800),
-  deptPlumbing: shop("Untitled_design_-_2023-12-06T091513.072.png", 800),
-  deptTools: shop("Untitled_design_-_2023-12-06T091747.387.png", 800),
-  deptSportingGoods: shop("Store_500x300px_Shopify_2_1b8cbd54-9a91-4086-9a05-89f169f41ef5.png", 800),
-  deptSeasonalHoliday: shop("Store_500x300px_Shopify_3_cbf99b5b-faf7-4beb-9a44-ba131b88d21a.png", 800),
+  /** Interior page heroes. */
+  deptHero: img("dept-hero.png"),
+  svcHero: img("svc-hero.png"),
+  aboutHero: img("about-hero.png"),
+
+  /** Homepage department tiles. */
+  deptPaint: img("dept-paint.png"),
+  deptElectrical: img("dept-electrical.png"),
+  deptPlumbing: img("dept-plumbing.png"),
+  deptTools: img("dept-tools.png"),
 
   /** Homepage paint banner. */
-  bannerPaintMatching: shop("Paint_1800x800px_Shopify.png", 1920),
+  bannerPaintMatching: img("banner-paint-matching.png"),
 
-  /** Services page hero + rows. */
-  svcHero: shop("Quotes_Estimates_1800x800px_Shopify.png", 1920),
-  svcQuotes: shop("Quotes_Estimates_500x300px_Shopify.png", 800),
-  svcKeyCutting: shop("Keys_500x300px_Shopify.png", 800),
-  svcLockRekeying: shop("Lock_Rekeying_500x300px_Shopify.png", 800),
-  svcPaintMatching: shop("Paint_Matching_Mixing_500x300px_Shopify.png", 800),
-  svcSpecialOrdering: shop("Special_Ordering_500x300px_Shopify.png", 800),
-
-  /** About page. */
-  aboutHero: shop("Store_1800x800px_Shopify_3.png", 1920),
-  aboutStory: shop("Store_1800x800px_Shopify_cbed1a03-5622-4ef7-a16f-1efd3def4313.png", 800),
+  /** Homepage service tiles. */
+  svcLockRekeying: img("svc-lock-rekeying.png"),
+  svcSpecialOrdering: img("svc-special-ordering.png"),
 } as const;
 
 export const locationSlug = "daubys-true-value-hardware";

@@ -20,6 +20,8 @@ image-manifest.json
 *.webp
 *.avif
 !public/favicon.*
+!public/images/
+!public/images/**
 
 .DS_Store
 npm-debug.log*

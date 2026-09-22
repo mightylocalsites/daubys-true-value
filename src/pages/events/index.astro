@@ -1,13 +1,12 @@
 ---
 /**
- * Events — branded override with site chrome and Stoppel-style hero.
+ * Events — branded override with site chrome.
  */
 import SiteLayout from "../../layouts/SiteLayout.astro";
 import { EventList } from "@mightylocalsites/ui";
 import FaviconLinks from "../../components/FaviconLinks.astro";
-import InteriorHero from "../../components/InteriorHero.astro";
 import { getSiteChrome, getSiteContentSafe, applyCache } from "../../lib/site-chrome";
-import { imageAlt, images, locationsHref, withShopifyLogo } from "../../data/images";
+import { images, locationsHref, withShopifyLogo } from "../../data/images";
 import { DEFAULT_OG_IMAGE, pageCanonical } from "../../lib/seo";
 import "../../styles/site.css";
 
@@ -19,12 +18,8 @@ withShopifyLogo(chrome);
 applyCache(Astro.response, content.cacheControl);
 
 const { owner } = chrome.site;
-const primary = chrome.site.locations[0] ?? null;
 const events = content.data.events ?? [];
 const canonical = pageCanonical(Astro.url, Astro.site);
-const locationLabel = primary?.locality && primary?.administrative_area
-  ? `${primary.locality}, ${primary.administrative_area}`
-  : "Tell City, IN";
 ---
 
 <SiteLayout
@@ -38,14 +33,7 @@ const locationLabel = primary?.locality && primary?.administrative_area
 >
   <FaviconLinks slot="head" />
 
-  <InteriorHero
-    image={images.heroDepartments}
-    alt={imageAlt.heroDepartments}
-    title="Events"
-    location={locationLabel}
-  />
-
-  <div class="page-flow page-flow--flush">
+  <div class="page-flow">
     <header class="page-hero">
       <p class="page-hero__eyebrow">Community</p>
       <h1>Upcoming Events</h1>
@@ -59,9 +47,3 @@ const locationLabel = primary?.locality && primary?.administrative_area
     />
   </div>
 </SiteLayout>
-
-<style>
-  :global(html) {
-    overflow-x: clip;
-  }
-</style>

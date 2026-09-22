@@ -479,7 +479,10 @@ h1, h2, h3, h4, .section-title {
   object-fit: cover;
 }
 
-.interior-hero__overlay {
+.interior-hero__overlay,
+.dept-hero__overlay,
+.svc-hero__overlay,
+.page-hero-banner__overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -490,22 +493,30 @@ h1, h2, h3, h4, .section-title {
   gap: 12px;
   padding: 24px;
   color: #fff;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--interior-hero-scrim);
 }
 
-.interior-hero__title {
+.interior-hero__title,
+.dept-hero__title,
+.svc-hero__title,
+.page-hero-banner__title {
   margin: 0;
   font-size: clamp(2rem, 5vw, 3.25rem);
   font-weight: 700;
   line-height: 1.1;
   color: #fff;
+  text-shadow: var(--interior-hero-text-shadow);
 }
 
-.interior-hero__loc {
+.interior-hero__loc,
+.dept-hero__loc,
+.svc-hero__loc,
+.page-hero-banner__loc {
   margin: 0;
   font-size: 1.125rem;
   font-weight: 500;
   color: #fff;
+  text-shadow: var(--interior-hero-text-shadow);
 }
 
 .interior-hero__cta {
@@ -526,6 +537,14 @@ h1, h2, h3, h4, .section-title {
 
 .page-flow > * {
   margin: 0;
+}
+
+.page-intro {
+  margin: 0;
+  text-align: center;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: var(--ml-color-muted);
 }
 
 .page-hero {

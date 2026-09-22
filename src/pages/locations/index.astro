@@ -5,19 +5,14 @@
 import SiteLayout from "../../layouts/SiteLayout.astro";
 import { LocationList } from "@mightylocalsites/ui";
 import FaviconLinks from "../../components/FaviconLinks.astro";
-import InteriorHero from "../../components/InteriorHero.astro";
 import { getSiteChrome } from "../../lib/site-chrome";
-import { imageAlt, images, locationsHref, withShopifyLogo } from "../../data/images";
+import { images, locationsHref, withShopifyLogo } from "../../data/images";
 import { DEFAULT_OG_IMAGE, pageCanonical } from "../../lib/seo";
 import "../../styles/site.css";
 
 const chrome = withShopifyLogo(await getSiteChrome(Astro.response));
 const { owner, locations } = chrome.site;
-const primary = locations[0] ?? null;
 const canonical = pageCanonical(Astro.url, Astro.site);
-const locationLabel = primary?.locality && primary?.administrative_area
-  ? `${primary.locality}, ${primary.administrative_area}`
-  : "Tell City, IN";
 
 if (locations.length === 1) {
   return Astro.redirect(`/locations/${locations[0]!.slug}`, 302);
@@ -35,14 +30,7 @@ if (locations.length === 1) {
 >
   <FaviconLinks slot="head" />
 
-  <InteriorHero
-    image={images.heroWelcome}
-    alt={imageAlt.heroWelcome}
-    title="Our Locations"
-    location={locationLabel}
-  />
-
-  <div class="page-flow page-flow--flush">
+  <div class="page-flow">
     <header class="page-hero">
       <p class="page-hero__eyebrow">Find us</p>
       <h1>Our Locations</h1>
@@ -57,9 +45,3 @@ if (locations.length === 1) {
     />
   </div>
 </SiteLayout>
-
-<style>
-  :global(html) {
-    overflow-x: clip;
-  }
-</style>

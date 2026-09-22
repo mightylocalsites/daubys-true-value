@@ -1,7 +1,7 @@
 {
   "name": "@mightylocalsites/daubys-true-value",
   "version": "0.0.1",
-  "description": "Per-site Astro template (SSR on Cloudflare Workers) for a MightyLocal site, restructured stack.",
+  "description": "Dauby's True Value Hardware — daubyshardware.com (MightyLocal SSR site on Cloudflare Workers).",
   "type": "module",
   "private": true,
   "scripts": {
