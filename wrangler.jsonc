@@ -3,6 +3,7 @@
   "name": "daubys-true-value",
   "compatibility_date": "2026-05-29",
   "compatibility_flags": ["nodejs_compat"]
+  "kv_namespaces": [{ "binding": "SESSION", "id": "64b288b357bb47ad91ed97978426f201" }]
   // Cloudflare Workers project (the @astrojs/cloudflare adapter targets Workers,
   // not Pages — do NOT add `pages_build_output_dir`). `astro build` emits the
   // worker to ./dist/server and static assets to ./dist/client, and writes the
